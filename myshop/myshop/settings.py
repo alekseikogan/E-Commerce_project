@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',  # 406
     'orders.apps.OrdersConfig',  # 422
     'payment.apps.PaymentConfig',  # 450
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',  # 420
+                'accounts.context_processors.admin_tools',
             ],
         },
     },
@@ -175,3 +177,13 @@ USE_L10N = True
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
+
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'shop:product_list'
+LOGOUT_REDIRECT_URL = 'shop:product_list'
+
+FLOWER_URL = os.environ.get('FLOWER_URL', 'http://localhost:5555')
+RABBITMQ_MANAGEMENT_URL = os.environ.get(
+    'RABBITMQ_MANAGEMENT_URL',
+    'http://localhost:15672',
+)

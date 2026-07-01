@@ -1,0 +1,26 @@
+{% extends "shop/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create account" %} · Mele Shop{% endblock %}
+
+{% block content %}
+<section class="auth-card content-card">
+  <div class="section-heading">
+    <div>
+      <h2>{% trans "Create account" %}</h2>
+      <p>{% trans "Register to save your details and shop faster." %}</p>
+    </div>
+  </div>
+
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">{% trans "Register" %}</button>
+  </form>
+
+  <p class="auth-switch">
+    {% trans "Already have an account?" %}
+    <a href="{% url 'accounts:login' %}">{% trans "Sign in" %}</a>
+  </p>
+</section>
+{% endblock %}

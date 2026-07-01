@@ -1,6 +1,6 @@
 ﻿Для докера:
-docker compose up --build
-
+docker compose up --build -d
+python manage.py migrate
 Загрузка демо-данных (один раз)
 docker compose exec web python manage.py loaddata initial_data
 

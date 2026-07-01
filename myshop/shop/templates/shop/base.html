@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load user_extras %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:'ru' }}">
   <head>
@@ -22,8 +23,48 @@
 
         <nav class="header-nav">
           <a href="{% url 'shop:product_list' %}" class="nav-link">{% trans "Catalog" %}</a>
-          <a href="{% url 'admin:index' %}" class="admin-link">Admin</a>
         </nav>
+
+        <div class="header-actions">
+          {% if user.is_staff %}
+            <details class="nav-dropdown admin-dropdown">
+              <summary class="dropdown-trigger burger-trigger" aria-label="{% trans 'Admin tools' %}">
+                <span class="burger-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="dropdown-menu">
+                <span class="dropdown-label">{% trans "Admin tools" %}</span>
+                <a href="{% url 'admin:index' %}" target="_blank" rel="noopener">{% trans "Django admin" %}</a>
+                <a href="{{ flower_url }}" target="_blank" rel="noopener">Flower</a>
+                <a href="{{ rabbitmq_url }}" target="_blank" rel="noopener">RabbitMQ</a>
+                <a href="{% url 'admin:shop_product_changelist' %}">{% trans "Products" %}</a>
+                <a href="{% url 'admin:orders_order_changelist' %}">{% trans "Orders" %}</a>
+                <a href="/{{ LANGUAGE_CODE }}/rosetta/">Rosetta</a>
+              </div>
+            </details>
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            <details class="nav-dropdown user-dropdown">
+              <summary class="dropdown-trigger avatar-trigger" aria-label="{% trans 'Account menu' %}">
+                <span class="user-avatar">{{ user|user_initials }}</span>
+                <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+              </summary>
+              <div class="dropdown-menu dropdown-menu-right">
+                <span class="dropdown-label">{{ user.get_full_name|default:user.username }}</span>
+                <span class="dropdown-meta">{{ user.email }}</span>
+                <form action="{% url 'accounts:logout' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit">{% trans "Sign out" %}</button>
+                </form>
+              </div>
+            </details>
+          {% else %}
+            <div class="auth-links">
+              <a href="{% url 'accounts:login' %}" class="nav-link">{% trans "Sign in" %}</a>
+              <a href="{% url 'accounts:register' %}" class="button small">{% trans "Register" %}</a>
+            </div>
+          {% endif %}
+        </div>
       </div>
     </header>
 
@@ -50,6 +91,14 @@
       </div>
     </div>
 
+    {% if messages %}
+      <div class="container messages-wrap">
+        {% for message in messages %}
+          <div class="flash-message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <main id="content">
       {% block hero %}{% endblock %}
       <div class="container">
@@ -63,5 +112,28 @@
         <span>{% trans "Handpicked products · Fast checkout · Secure payments" %}</span>
       </div>
     </footer>
+
+    <script>
+      document.querySelectorAll('.nav-dropdown').forEach((dropdown) => {
+        dropdown.addEventListener('toggle', () => {
+          if (!dropdown.open) {
+            return;
+          }
+          document.querySelectorAll('.nav-dropdown').forEach((other) => {
+            if (other !== dropdown) {
+              other.open = false;
+            }
+          });
+        });
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!event.target.closest('.nav-dropdown')) {
+          document.querySelectorAll('.nav-dropdown').forEach((dropdown) => {
+            dropdown.open = false;
+          });
+        }
+      });
+    </script>
   </body>
 </html>

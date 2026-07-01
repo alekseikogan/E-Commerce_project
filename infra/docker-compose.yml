@@ -43,6 +43,25 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  flower:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: mele_shop_flower
+    command: celery -A myshop flower --port=5555
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      celery:
+        condition: service_started
+    restart: unless-stopped
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: mele_shop_rabbitmq
