@@ -1,9 +1,24 @@
-
+import os
 from pathlib import Path
+
+from django.utils.translation import gettext_lazy as _
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from django.utils.translation import gettext_lazy as _
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-))g_e1x$q(*76z#r1k&-rb6-g9m=fl1+kvita+4ngbds@qrbsn'
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 
@@ -16,13 +31,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'easy_thumbnails',
+    'rosetta',  # 551
+
     'shop.apps.ShopConfig',  # 389
     'cart.apps.CartConfig',  # 406
+    'orders.apps.OrdersConfig',  # 422
+    'payment.apps.PaymentConfig',  # 450
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # 538
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -104,4 +126,49 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+STATIC_ROOT = BASE_DIR / 'static'
+
 CART_SESSION_ID = 'cart'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # 439
+
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_RESULT_BACKEND = 'rpc://'
+
+CELERY_QUEUES = {
+    'manual_queue': {
+        'exchange': 'manual_queue',
+        'routing_key': 'manual_queue',
+    },
+    'front_rubbish': {
+        'exchange': 'front_rubbish_exchange',
+        'routing_key': 'front_rubbish_rk',
+        'queue_arguments': {'x-max-priority': 8},  # задаём максимальный приоритет
+    },
+}
+
+# Настроечные параметры Stripe 449 стр
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_API_VERSION = '2022-08-01'
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+# Пресеты размеров миниатюр
+THUMBNAIL_ALIASES = {
+    '': {
+        'product_list': {'size': (300, 300), 'crop': True},  # уменьшили в 2 раза
+        'product_detail': {'size': (300, 300), 'crop': True},  # меньше детальная
+    },
+}
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('ru', _('Russian')),
+]
+
+USE_I18N = True
+USE_L10N = True
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]

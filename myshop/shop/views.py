@@ -1,5 +1,6 @@
 from cart.forms import CartAddProductForm
 from django.shortcuts import get_object_or_404, render
+from orders.tasks import process_number, what_time_is_it
 
 from .models import Category, Product
 
@@ -25,6 +26,9 @@ def product_list(request, category_slug=None):
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
+    process_number.delay(5)
+    for i in range(10):
+        what_time_is_it.delay()
 
     return render(
         request,

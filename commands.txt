@@ -11,6 +11,22 @@ docker run -it --rm --name redis -p 6379:6379 redis
 lsof -i :8000 - показать процессы и порты
 sudo fuser -k 8000/tcp -удалить все процессы занимающие порт 8000
 
+!! Запуск Celery внутри папки приложения - этот процесс выполняет задачи:
+celery -A myshop worker -l info
+
+этот процесс запускает веб-интерфейс для наблюдения - flower:
+celery -A myshop flower 
+
+Запуск RabbitMQ:
+docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
+
+Запуск stripe:
+stripe listen --forward-to localhost:8000/payment/webhook/
+
+протестить работу хука 475:
+stripe trigger checkout.session.completed
+
+
 python manage.py shell
 python manage.py showmigrations finance
 python manage.py showmigrations kit
