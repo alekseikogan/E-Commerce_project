@@ -28,7 +28,7 @@ services:
       context: ..
       dockerfile: infra/Dockerfile
     container_name: mele_shop_celery
-    command: celery -A myshop worker -l info
+    command: celery -A myshop worker -l info -Q celery,manual_queue,front_rubbish
     env_file:
       - .env
     environment:
