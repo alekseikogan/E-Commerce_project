@@ -1,4 +1,10 @@
-﻿python3 -m venv venv
+﻿Для докера:
+docker compose up --build
+
+Загрузка демо-данных (один раз)
+docker compose exec web python manage.py loaddata initial_data
+
+python3 -m venv venv
 source venv/bin/activate.fish
 
 python -m pip install --upgrade pip

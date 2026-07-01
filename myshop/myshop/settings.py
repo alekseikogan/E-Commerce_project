@@ -132,7 +132,10 @@ CART_SESSION_ID = 'cart'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # 439
 
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_BROKER_URL = os.environ.get(
+    'CELERY_BROKER_URL',
+    'amqp://guest:guest@localhost:5672//',
+)
 CELERY_RESULT_BACKEND = 'rpc://'
 
 CELERY_QUEUES = {
