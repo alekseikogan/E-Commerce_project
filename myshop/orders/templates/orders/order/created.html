@@ -1,10 +1,17 @@
 {% extends "shop/base.html" %}
+{% load i18n %}
 
 {% block title %}
-Thank you
+  {% trans "Thank you" %} · Mele Shop
 {% endblock %}
+
 {% block content %}
-    <h1>Thank you</h1>
-    <p>Your order has been successfully completed. Your order number is
-    <strong>{{ order.id }}</strong>.</p>
+<section class="status-card success">
+  <h1>{% trans "Thank you for your order" %}</h1>
+  <p>{% trans "Your order has been successfully completed." %}</p>
+  <p>{% trans "Order number" %}: <strong>#{{ order.id }}</strong></p>
+  <div class="page-actions" style="justify-content: flex-start; margin-top: 1.5rem;">
+    <a href="{% url 'shop:product_list' %}" class="button">{% trans "Back to catalog" %}</a>
+  </div>
+</section>
 {% endblock %}

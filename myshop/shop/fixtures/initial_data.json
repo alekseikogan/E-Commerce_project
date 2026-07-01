@@ -1,0 +1,274 @@
+[
+  {
+    "model": "shop.category",
+    "pk": 1,
+    "fields": {
+      "name": "Укулеле",
+      "slug": "ukulele"
+    }
+  },
+  {
+    "model": "shop.category",
+    "pk": 2,
+    "fields": {
+      "name": "Аксессуары",
+      "slug": "accessories"
+    }
+  },
+  {
+    "model": "shop.category",
+    "pk": 3,
+    "fields": {
+      "name": "Дом и уют",
+      "slug": "home"
+    }
+  },
+  {
+    "model": "shop.category",
+    "pk": 4,
+    "fields": {
+      "name": "Обучение",
+      "slug": "learning"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "name": "Укулеле сопрано Kala Mahogany",
+      "slug": "kala-mahogany-soprano",
+      "image": "",
+      "description": "Классическое сопрано из красного дерева с тёплым, мягким звуком. Отличный выбор для первого инструмента и домашних вечеров.",
+      "price": "8990.00",
+      "available": true,
+      "created": "2026-01-10T12:00:00Z",
+      "updated": "2026-01-10T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 2,
+    "fields": {
+      "category": 1,
+      "name": "Укулеле концерт Enya Nova",
+      "slug": "enya-nova-concert",
+      "image": "",
+      "description": "Лёгкий карбоновый корпус, стабильная стройка и современный дизайн. Удобно брать с собой в поездки.",
+      "price": "12490.00",
+      "available": true,
+      "created": "2026-01-11T12:00:00Z",
+      "updated": "2026-01-11T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 3,
+    "fields": {
+      "category": 1,
+      "name": "Укулеле тенор Luna Tattoo",
+      "slug": "luna-tattoo-tenor",
+      "image": "",
+      "description": "Тенор с выразительным рисунком и насыщенным тембром. Подходит для аккомпанемента и мелодических партий.",
+      "price": "14990.00",
+      "available": true,
+      "created": "2026-01-12T12:00:00Z",
+      "updated": "2026-01-12T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 4,
+    "fields": {
+      "category": 1,
+      "name": "Укулеле сопрано Flight Travel",
+      "slug": "flight-travel-soprano",
+      "image": "",
+      "description": "Компактная модель с удобным грифом и чистым звучанием. Идеальна для начинающих музыкантов.",
+      "price": "6790.00",
+      "available": true,
+      "created": "2026-01-13T12:00:00Z",
+      "updated": "2026-01-13T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 5,
+    "fields": {
+      "category": 2,
+      "name": "Чехол утеплённый Protec",
+      "slug": "protec-padded-case",
+      "image": "",
+      "description": "Мягкий чехол с усиленными швами и карманом для медиаторов. Надёжная защита при ежедневных переездах.",
+      "price": "2490.00",
+      "available": true,
+      "created": "2026-01-14T12:00:00Z",
+      "updated": "2026-01-14T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 6,
+    "fields": {
+      "category": 2,
+      "name": "Комплект струн Aquila Nylgut",
+      "slug": "aquila-nylgut-strings",
+      "image": "",
+      "description": "Набор струн с мягким атакой и стабильной настройкой. Подходит для сопрано и концерта.",
+      "price": "890.00",
+      "available": true,
+      "created": "2026-01-14T13:00:00Z",
+      "updated": "2026-01-14T13:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 7,
+    "fields": {
+      "category": 2,
+      "name": "Ремень из хлопка с узлом",
+      "slug": "cotton-ukulele-strap",
+      "image": "",
+      "description": "Лёгкий ремень в островном стиле с мягкой фурнитурой. Удобен для игры стоя и на сцене.",
+      "price": "1290.00",
+      "available": true,
+      "created": "2026-01-15T12:00:00Z",
+      "updated": "2026-01-15T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 8,
+    "fields": {
+      "category": 2,
+      "name": "Настольная подставка для укулеле",
+      "slug": "wooden-ukulele-stand",
+      "image": "",
+      "description": "Деревянная подставка с минималистичным силуэтом. Инструмент всегда под рукой и выглядит как декор.",
+      "price": "1990.00",
+      "available": true,
+      "created": "2026-01-16T12:00:00Z",
+      "updated": "2026-01-16T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 9,
+    "fields": {
+      "category": 3,
+      "name": "Аромасвеча Island Breeze",
+      "slug": "island-breeze-candle",
+      "image": "",
+      "description": "Свеча с нотами кокоса, ванили и цитруса. Создаёт спокойную атмосферу для вечернего отдыха.",
+      "price": "1590.00",
+      "available": true,
+      "created": "2026-01-17T12:00:00Z",
+      "updated": "2026-01-17T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 10,
+    "fields": {
+      "category": 3,
+      "name": "Льняная наволочка Mele Sand",
+      "slug": "mele-sand-pillowcase",
+      "image": "",
+      "description": "Натуральный лён с деликатной фактурой и спокойным песочным оттенком. Приятен к телу и долго служит.",
+      "price": "2190.00",
+      "available": true,
+      "created": "2026-01-18T12:00:00Z",
+      "updated": "2026-01-18T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 11,
+    "fields": {
+      "category": 3,
+      "name": "Керамическая кружка Ocean Glaze",
+      "slug": "ocean-glaze-mug",
+      "image": "",
+      "description": "Ручная керамика с плавным градиентом морской глазури. Удобная форма и объём 350 мл.",
+      "price": "1790.00",
+      "available": true,
+      "created": "2026-01-19T12:00:00Z",
+      "updated": "2026-01-19T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 12,
+    "fields": {
+      "category": 3,
+      "name": "Плед из переработанного хлопка",
+      "slug": "recycled-cotton-throw",
+      "image": "",
+      "description": "Мягкий плед для дивана и балкона. Лёгкий, тёплый и подходит для круглогодичного использования.",
+      "price": "3890.00",
+      "available": true,
+      "created": "2026-01-20T12:00:00Z",
+      "updated": "2026-01-20T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 13,
+    "fields": {
+      "category": 4,
+      "name": "Книга «Укулеле с нуля за 30 дней»",
+      "slug": "ukulele-30-days-book",
+      "image": "",
+      "description": "Пошаговый курс с аккордами, ритмами и простыми песнями. Подходит для самостоятельного обучения.",
+      "price": "1290.00",
+      "available": true,
+      "created": "2026-01-21T12:00:00Z",
+      "updated": "2026-01-21T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 14,
+    "fields": {
+      "category": 4,
+      "name": "Плакат с аккордами A4",
+      "slug": "chord-poster-a4",
+      "image": "",
+      "description": "Наглядная шпаргалка с основными аккордами и схемами бренда Mele Shop. Удобно повесить над рабочим местом.",
+      "price": "590.00",
+      "available": true,
+      "created": "2026-01-22T12:00:00Z",
+      "updated": "2026-01-22T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 15,
+    "fields": {
+      "category": 4,
+      "name": "Набор медиаторов из кокоса",
+      "slug": "coconut-pick-set",
+      "image": "",
+      "description": "Три медиатора разной жёсткости из натурального материала. Приятные тактильные ощущения и мягкий звук.",
+      "price": "490.00",
+      "available": true,
+      "created": "2026-01-23T12:00:00Z",
+      "updated": "2026-01-23T12:00:00Z"
+    }
+  },
+  {
+    "model": "shop.product",
+    "pk": 16,
+    "fields": {
+      "category": 4,
+      "name": "Онлайн-урок «Первые 5 песен»",
+      "slug": "first-five-songs-lesson",
+      "image": "",
+      "description": "Цифровой доступ к видеокурсу с разбором ритма, перебора и пяти популярных композиций для укулеле.",
+      "price": "990.00",
+      "available": true,
+      "created": "2026-01-24T12:00:00Z",
+      "updated": "2026-01-24T12:00:00Z"
+    }
+  }
+]

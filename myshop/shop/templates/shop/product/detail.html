@@ -4,34 +4,38 @@
 {% load thumbnail %}
 
 {% block title %}
-  {{ product.name }}
+  {{ product.name }} · Mele Shop
 {% endblock %}
 
 {% block content %}
-<div class="product-detail">
-  {% if product.image %}
-    <img src="{{ product.image|thumbnail_url:'product_detail' }}" alt="{{ product.name }}">
-  {% else %}
-    <img src="{% static 'img/no_image.png' %}" alt="{{ product.name }}">
-  {% endif %}
+<article class="content-card product-detail">
+  <div class="product-detail-image">
+    {% if product.image %}
+      <img src="{{ product.image|thumbnail_url:'product_detail' }}" alt="{{ product.name }}">
+    {% else %}
+      <img src="{% static 'img/no_image.svg' %}" alt="{{ product.name }}" class="placeholder-image">
+    {% endif %}
+  </div>
 
-  <h1>{{ product.name }}</h1>
-
-  <h2>
-    <a href="{{ product.category.get_absolute_url }}">
+  <div class="product-detail-info">
+    <a href="{{ product.category.get_absolute_url }}" class="category-link">
       {{ product.category }}
     </a>
-  </h2>
 
-  <p class="price">{{ product.price }} руб</p>
-  <form action="{% url "cart:cart_add" product.id %}" method="post">
-    {{ cart_product_form }}
-    {% csrf_token %}
-    <input type="submit" value="{% trans "Add to cart" %}">
-  </form>
+    <h1>{{ product.name }}</h1>
+    <p class="price price-large">{{ product.price }} ₽</p>
 
-  <div class="description">
-    {{ product.description|linebreaks }}
+    <form action="{% url "cart:cart_add" product.id %}" method="post" class="add-to-cart-form">
+      {{ cart_product_form }}
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Add to cart" %}" class="button">
+    </form>
+
+    {% if product.description %}
+      <div class="product-description">
+        {{ product.description|linebreaks }}
+      </div>
+    {% endif %}
   </div>
-</div>
+</article>
 {% endblock %}

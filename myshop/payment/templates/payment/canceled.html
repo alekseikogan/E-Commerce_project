@@ -1,8 +1,12 @@
 {% extends "shop/base.html" %}
+{% load i18n %}
 
-{% block title %}Payment canceled{% endblock %}
+{% block title %}{% trans "Payment canceled" %} · Mele Shop{% endblock %}
 
 {% block content %}
-  <h1>Your payment has not been processed</h1>
-  <p>There was a problem processing your payment.</p>
+<section class="status-card error">
+  <h1>{% trans "Payment not completed" %}</h1>
+  <p>{% trans "There was a problem processing your payment. You can try again from your order page." %}</p>
+  <a href="{% url 'shop:product_list' %}" class="button light">{% trans "Back to catalog" %}</a>
+</section>
 {% endblock %}

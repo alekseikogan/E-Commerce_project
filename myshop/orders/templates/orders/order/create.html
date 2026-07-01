@@ -1,26 +1,41 @@
 {% extends "shop/base.html" %}
+{% load i18n %}
 
 {% block title %}
-Checkout
+  {% trans "Checkout" %} · Mele Shop
 {% endblock %}
 
 {% block content %}
-<h1>Checkout</h1>
-<div class="order-info">
-    <h3>Your order</h3>
-    <ul>
+<section class="content-card">
+  <div class="section-heading">
+    <div>
+      <h2>{% trans "Checkout" %}</h2>
+      <p>{% trans "Fill in your details to place the order." %}</p>
+    </div>
+  </div>
+
+  <div class="checkout-layout">
+    <form method="post" class="order-form">
+      {{ form.as_p }}
+      <p><input type="submit" value="{% trans "Place order" %}" class="button"></p>
+      {% csrf_token %}
+    </form>
+
+    <aside class="order-info">
+      <h3>{% trans "Your order" %}</h3>
+      <ul>
         {% for item in cart %}
-        <li>
-            {{ item.quantity }} x {{ item.product.name }}
-            <span>{{ item.total_price }} руб</span>
-        </li>
+          <li>
+            <span>{{ item.quantity }} × {{ item.product.name }}</span>
+            <span>{{ item.total_price }} ₽</span>
+          </li>
         {% endfor %}
-    </ul>
-    <p>Total: {{ cart.get_total_price }} руб</p>
-</div>
-<form method="post" class="order-form">
-{{ form.as_p }}
-<p><input type="submit" value="Place order"></p>
-{% csrf_token %}
-</form>
+      </ul>
+      <p>
+        <span>{% trans "Total" %}</span>
+        <span>{{ cart.get_total_price }} ₽</span>
+      </p>
+    </aside>
+  </div>
+</section>
 {% endblock %}

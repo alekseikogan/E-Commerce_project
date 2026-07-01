@@ -1,41 +1,67 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html>
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}">
   <head>
     <meta charset="utf-8" />
-    <title>{% block title %}{% trans "My shop" %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}{% trans "Mele Shop" %}{% endblock %}</title>
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
   </head>
 
   <body>
-    <div id="header">
-      <a href="/" class="logo">{% trans "My shop" %}</a>
-      <a href="{% url 'admin:index' %}" class="admin-link">Admin</a>
-    </div>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="brand">
+          <span class="brand-mark">M</span>
+          <span class="brand-copy">
+            <strong>{% trans "Mele Shop" %}</strong>
+            <span>{% trans "Curated goods with island soul" %}</span>
+          </span>
+        </a>
 
-    <div id="subheader">
-      <div class="cart">
-        {% with total_items=cart|length %}
-          {% if total_items > 0 %}
-            {% trans "Your cart" %}:
-            <a href="{% url "cart:cart_detail" %}">
-              {% blocktrans with total=cart.get_total_price count items=total_items %}
-                {{ items }} item, руб{{ total }}
-                {% plural %}
-                {{ items }} items, руб{{ total }}
-                {% endblocktrans %}
-            </a>
-          {% elif not order %}
-            {% trans "Your cart is empty." %}
-          {% endif %}
-        {% endwith %}
+        <nav class="header-nav">
+          <a href="{% url 'shop:product_list' %}" class="nav-link">{% trans "Catalog" %}</a>
+          <a href="{% url 'admin:index' %}" class="admin-link">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="site-subheader">
+      <div class="container subheader-inner">
+        <div class="cart">
+          {% with total_items=cart|length %}
+            {% if total_items > 0 %}
+              <a href="{% url "cart:cart_detail" %}" class="cart-pill">
+                <span class="cart-icon">🛒</span>
+                <span>
+                  {% blocktrans with total=cart.get_total_price count items=total_items %}
+                    {{ items }} item · {{ total }} ₽
+                  {% plural %}
+                    {{ items }} items · {{ total }} ₽
+                  {% endblocktrans %}
+                </span>
+              </a>
+            {% elif not order %}
+              <span class="cart-empty">{% trans "Your cart is empty." %}</span>
+            {% endif %}
+          {% endwith %}
+        </div>
       </div>
     </div>
 
-    <div id="content">
-      {% block content %}
-      {% endblock %}
-    </div>
+    <main id="content">
+      {% block hero %}{% endblock %}
+      <div class="container">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <span>© {% now "Y" %} Mele Shop</span>
+        <span>{% trans "Handpicked products · Fast checkout · Secure payments" %}</span>
+      </div>
+    </footer>
   </body>
 </html>

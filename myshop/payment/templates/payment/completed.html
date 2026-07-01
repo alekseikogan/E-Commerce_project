@@ -1,8 +1,12 @@
 {% extends "shop/base.html" %}
+{% load i18n %}
 
-{% block title %}Payment successful{% endblock %}
+{% block title %}{% trans "Payment successful" %} · Mele Shop{% endblock %}
 
 {% block content %}
-  <h1>Your payment was successful</h1>
-  <p>Your payment has been processed successfully.</p>
+<section class="status-card success">
+  <h1>{% trans "Payment successful" %}</h1>
+  <p>{% trans "Your payment has been processed successfully." %}</p>
+  <a href="{% url 'shop:product_list' %}" class="button">{% trans "Continue shopping" %}</a>
+</section>
 {% endblock %}

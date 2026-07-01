@@ -1,41 +1,50 @@
 {% extends "shop/base.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Pay your order{% endblock %}
+{% block title %}{% trans "Pay your order" %} · Mele Shop{% endblock %}
 
 {% block content %}
-  <h1>Order summary</h1>
+<section class="content-card">
+  <div class="section-heading">
+    <div>
+      <h2>{% trans "Order summary" %}</h2>
+      <p>{% trans "Review your order before payment." %}</p>
+    </div>
+  </div>
+
   <table class="cart">
     <thead>
       <tr>
-        <th>Image</th>
-        <th>Product</th>
-        <th>Price</th>
-        <th>Quantity</th>
-        <th>Total</th>
+        <th>{% trans "Image" %}</th>
+        <th>{% trans "Product" %}</th>
+        <th>{% trans "Price" %}</th>
+        <th>{% trans "Quantity" %}</th>
+        <th>{% trans "Total" %}</th>
       </tr>
     </thead>
     <tbody>
       {% for item in order.items.all %}
-        <tr class="row{% cycle "1" "2" %}">
+        <tr>
           <td>
-            <img src="{% if item.product.image %}{{ item.product.image.url }}
-            {% else %}{% static "img/no_image.png" %}{% endif %}">
+            <img class="table-image" src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/no_image.svg' %}{% endif %}" alt="{{ item.product.name }}">
           </td>
           <td>{{ item.product.name }}</td>
-          <td class="num">{{ item.price }} руб</td>
+          <td class="num">{{ item.price }} ₽</td>
           <td class="num">{{ item.quantity }}</td>
-          <td class="num">{{ item.get_cost }} руб</td>
+          <td class="num">{{ item.get_cost }} ₽</td>
         </tr>
       {% endfor %}
       <tr class="total">
-        <td colspan="4">Total</td>
-        <td class="num">{{ order.get_total_cost }} руб</td>
+        <td colspan="4">{% trans "Total" %}</td>
+        <td class="num">{{ order.get_total_cost }} ₽</td>
       </tr>
     </tbody>
   </table>
-  <form action="{% url "payment:process" %}" method="post">
-    <input type="submit" value="Pay now">
+
+  <form action="{% url "payment:process" %}" method="post" class="page-actions">
+    <input type="submit" value="{% trans "Pay now" %}" class="button">
     {% csrf_token %}
   </form>
+</section>
 {% endblock %}

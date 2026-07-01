@@ -1,52 +1,98 @@
 {% extends "shop/base.html" %}
 {% load static %}
 {% load thumbnail %}
+{% load i18n %}
 
 {% block title %}
-  {% if category %}
-    {{ category.name }}
-  {% else %}
-    Products
-  {% endif %}
+  {% if category %}{{ category.name }}{% else %}{% trans "Catalog" %}{% endif %} · Mele Shop
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="container">
+    <div class="hero-card">
+      <div class="hero-copy">
+        <h1>{% trans "Discover products with warmth and character" %}</h1>
+        <p>{% trans "A curated collection of instruments, accessories, and lifestyle goods selected for quality, comfort, and everyday joy." %}</p>
+        <div class="hero-badges">
+          <span class="badge">{% trans "Free inspiration with every order" %}</span>
+          <span class="badge">{% trans "Carefully selected assortment" %}</span>
+          <span class="badge">{% trans "Secure Stripe checkout" %}</span>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="stat-card">
+          <strong>{{ products|length }}</strong>
+          <span>{% if category %}{% trans "Products in this category" %}{% else %}{% trans "Products available now" %}{% endif %}</span>
+        </div>
+        <div class="stat-card">
+          <strong>{{ categories|length }}</strong>
+          <span>{% trans "Categories to explore" %}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
 
 {% block content %}
-<div id="sidebar">
-  <h3>Categories</h3>
-  <ul>
-    <li {% if not category %}class="selected"{% endif %}>
-      <a href="{% url 'shop:product_list' %}">All</a>
-    </li>
-    {% for c in categories %}
-      <li {% if category.slug == c.slug %}class="selected"{% endif %}>
-        <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+<div class="page-layout">
+  <aside class="sidebar-card">
+    <h3>{% trans "Categories" %}</h3>
+    <ul class="category-list">
+      <li {% if not category %}class="selected"{% endif %}>
+        <a href="{% url 'shop:product_list' %}">{% trans "All products" %}</a>
       </li>
-    {% endfor %}
-  </ul>
-</div>
+      {% for c in categories %}
+        <li {% if category and category.slug == c.slug %}class="selected"{% endif %}>
+          <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </aside>
 
-<div id="main" class="product-list">
-  <h1>
-    {% if category %}
-      {{ category.name }}
-    {% else %}
-      Products
-    {% endif %}
-  </h1>
-
-  {% for product in products %}
-    <div class="item">
-      <a href="{{ product.get_absolute_url }}">
-        {% if product.image %}
-          <img src="{{ product.image|thumbnail_url:'product_list' }}" alt="{{ product.name }}">
-        {% else %}
-          <img src="{% static 'img/no_image.png' %}" alt="{{ product.name }}">
-        {% endif %}
-      </a>
-      <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
-      <br>
-      {{ product.price }} руб
+  <section class="content-card">
+    <div class="section-heading">
+      <div>
+        <h2>
+          {% if category %}
+            {{ category.name }}
+          {% else %}
+            {% trans "All products" %}
+          {% endif %}
+        </h2>
+        <p>{% trans "Browse the collection and add your favorites to the cart." %}</p>
+      </div>
     </div>
-  {% endfor %}
+
+    {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+          <article class="product-card">
+            <a href="{{ product.get_absolute_url }}" class="product-card-media">
+              {% if product.image %}
+                <img src="{{ product.image|thumbnail_url:'product_list' }}" alt="{{ product.name }}">
+              {% else %}
+                <img src="{% static 'img/no_image.svg' %}" alt="{{ product.name }}" class="placeholder-image">
+              {% endif %}
+            </a>
+            <div class="product-card-body">
+              <span class="product-card-category">{{ product.category.name }}</span>
+              <a href="{{ product.get_absolute_url }}" class="product-card-title">{{ product.name }}</a>
+              <div class="product-card-footer">
+                <span class="price">{{ product.price }} ₽</span>
+                <a href="{{ product.get_absolute_url }}" class="button small">{% trans "View" %}</a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>{% trans "No products yet" %}</h3>
+        <p>{% trans "Load the demo fixture or add products in the admin panel." %}</p>
+      </div>
+    {% endif %}
+  </section>
 </div>
 {% endblock %}
