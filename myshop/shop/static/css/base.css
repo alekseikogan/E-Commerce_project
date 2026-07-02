@@ -1034,3 +1034,64 @@ ul.errorlist {
     color: var(--color-text-muted);
     font-size: 0.95rem;
 }
+
+.analytics-dashboard .analytics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.analytics-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.analytics-panel {
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+}
+
+.analytics-panel h3 {
+    margin-bottom: 1rem;
+}
+
+.analytics-table {
+    width: 100%;
+}
+
+.analytics-log-wrap {
+    overflow-x: auto;
+}
+
+.analytics-log-table code {
+    font-size: 0.82rem;
+}
+
+.analytics-empty {
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.analytics-log-meta {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
+.analytics-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.analytics-page-info {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}

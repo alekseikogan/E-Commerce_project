@@ -36,6 +36,11 @@ services:
       POSTGRES_HOST: db
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_EVENTS_TOPIC: shop.events
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DATABASE: analytics
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
     volumes:
       - ../myshop/media:/app/media
     depends_on:
@@ -217,6 +222,89 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  kafka-analytics-consumer:
+    build:
+      context: ./kafka
+    container_name: mele_shop_kafka_analytics_consumer
+    command: python analytics_consumer.py
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_EVENTS_TOPIC: shop.events
+      KAFKA_ANALYTICS_GROUP_ID: cozy-coza-analytics
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DATABASE: analytics
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
+    depends_on:
+      clickhouse-init:
+        condition: service_completed_successfully
+      kafka-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: mele_shop_clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: analytics
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  clickhouse-init:
+    image: curlimages/curl:8.11.0
+    container_name: mele_shop_clickhouse_init
+    volumes:
+      - ./clickhouse/init.sql:/init.sql
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        until curl -fsS "http://default:$${CLICKHOUSE_PASSWORD}@clickhouse:8123/ping"; do sleep 2; done
+        curl -fsS "http://default:$${CLICKHOUSE_PASSWORD}@clickhouse:8123/" --data "CREATE DATABASE IF NOT EXISTS analytics"
+        curl -fsS "http://default:$${CLICKHOUSE_PASSWORD}@clickhouse:8123/?database=analytics" --data-binary @/init.sql
+        echo ClickHouse analytics schema ready.
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: mele_shop_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clickhouse-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      clickhouse-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   kafka-load-publisher:
     build:
       context: ./kafka
@@ -236,3 +324,5 @@ services:
 volumes:
   postgres_data:
   kafka_data:
+  clickhouse_data:
+  grafana_data:

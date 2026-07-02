@@ -10,4 +10,5 @@ def admin_tools(request):
         'stripe_dashboard_url': settings.STRIPE_DASHBOARD_URL,
         'kafka_ui_url': os.environ.get('KAFKA_UI_URL', 'http://localhost:8080'),
         'kafka_load_url': os.environ.get('KAFKA_LOAD_URL', 'http://localhost:8081'),
+        'grafana_url': settings.GRAFANA_URL,
     }

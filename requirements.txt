@@ -9,3 +9,4 @@ psycopg2-binary==2.9.11
 Pillow==12.2.0
 flower==2.0.1
 kafka-python==2.2.15
+clickhouse-connect==0.8.15

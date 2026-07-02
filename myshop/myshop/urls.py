@@ -4,9 +4,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 
+from shop.analytics_views import analytics_dashboard, track_clicks
+
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
+    path('analytics/', analytics_dashboard, name='analytics_dashboard'),
+    path('analytics/track/', track_clicks, name='analytics_track'),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('cart/', include('cart.urls', namespace='cart')),
     path('orders/', include('orders.urls', namespace='orders')),

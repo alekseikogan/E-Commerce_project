@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'shop.middleware.AnalyticsMiddleware',
 ]
 
 ROOT_URLCONF = 'myshop.urls'
@@ -204,6 +205,13 @@ STRIPE_DASHBOARD_URL = os.environ.get(
 )
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
 KAFKA_EVENTS_TOPIC = os.environ.get('KAFKA_EVENTS_TOPIC', 'shop.events')
+
+CLICKHOUSE_HOST = os.environ.get('CLICKHOUSE_HOST', 'localhost')
+CLICKHOUSE_PORT = int(os.environ.get('CLICKHOUSE_PORT', '8123'))
+CLICKHOUSE_DATABASE = os.environ.get('CLICKHOUSE_DATABASE', 'analytics')
+CLICKHOUSE_USER = os.environ.get('CLICKHOUSE_USER', 'default')
+CLICKHOUSE_PASSWORD = os.environ.get('CLICKHOUSE_PASSWORD', 'cozy_coza')
+GRAFANA_URL = os.environ.get('GRAFANA_URL', 'http://localhost:3000')
 
 PRODUCT_POPULARITY_WEIGHTS = {
     'views': 1,

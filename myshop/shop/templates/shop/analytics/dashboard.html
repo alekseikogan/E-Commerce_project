@@ -1,0 +1,221 @@
+{% extends "shop/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Analytics" %} · Cozy Coza{% endblock %}
+
+{% block content %}
+<section class="content-card analytics-dashboard">
+  <div class="section-heading">
+    <div>
+      <h2>{% trans "Shop analytics" %}</h2>
+      <p>{% trans "Live data from Kafka → ClickHouse. Access log, page views, cart events, orders and clicks." %}</p>
+    </div>
+    <div class="page-actions">
+      <a href="{{ grafana_url }}" class="button" target="_blank" rel="noopener">{% trans "Open Grafana" %}</a>
+    </div>
+  </div>
+
+  <div class="analytics-kpi-grid">
+    <article class="stat-card">
+      <strong>{{ kpi.page_views }}</strong>
+      <span>{% trans "Page views (24h)" %}</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ kpi.product_views }}</strong>
+      <span>{% trans "Product views (24h)" %}</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ kpi.cart_adds }}</strong>
+      <span>{% trans "Cart adds (24h)" %}</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ kpi.orders }}</strong>
+      <span>{% trans "Orders (24h)" %}</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ kpi.clicks }}</strong>
+      <span>{% trans "Clicks (24h)" %}</span>
+    </article>
+    <article class="stat-card">
+      <strong>{{ kpi.access }}</strong>
+      <span>{% trans "HTTP requests (24h)" %}</span>
+    </article>
+  </div>
+
+  <div class="analytics-panels">
+    <section class="analytics-panel">
+      <h3>{% trans "Traffic (24h)" %}</h3>
+      <canvas id="trafficChart" height="120"></canvas>
+    </section>
+
+    <section class="analytics-panel">
+      <h3>{% trans "Funnel (7 days)" %}</h3>
+      <canvas id="funnelChart" height="120"></canvas>
+    </section>
+  </div>
+
+  <div class="analytics-panels">
+    <section class="analytics-panel">
+      <h3>{% trans "Top products (7 days)" %}</h3>
+      {% if top_products %}
+        <table class="cart analytics-table">
+          <thead>
+            <tr>
+              <th>{% trans "Product" %}</th>
+              <th>{% trans "Views" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in top_products %}
+              <tr>
+                <td>{{ row.product_name }}</td>
+                <td class="num">{{ row.views }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="analytics-empty">{% trans "No product views yet." %}</p>
+      {% endif %}
+    </section>
+
+    <section class="analytics-panel">
+      <h3>{% trans "Events by type (24h)" %}</h3>
+      {% if summary %}
+        <table class="cart analytics-table">
+          <thead>
+            <tr>
+              <th>{% trans "Event" %}</th>
+              <th>{% trans "Count" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in summary %}
+              <tr>
+                <td>{{ row.label }}</td>
+                <td class="num">{{ row.total }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="analytics-empty">{% trans "No events in ClickHouse yet." %}</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="analytics-panel analytics-log">
+    <h3>{% trans "Activity log" %} <span class="analytics-log-meta">({{ activity_total }} {% trans "events" %})</span></h3>
+    {% if activity %}
+      <div class="analytics-log-wrap">
+        <table class="cart analytics-table analytics-log-table">
+          <thead>
+            <tr>
+              <th>{% trans "Time" %}</th>
+              <th>{% trans "Event" %}</th>
+              <th>{% trans "User" %}</th>
+              <th>{% trans "Session" %}</th>
+              <th>{% trans "Page / path" %}</th>
+              <th>{% trans "Details" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in activity %}
+              <tr>
+                <td>{{ row.timestamp }}</td>
+                <td><code>{{ row.event }}</code></td>
+                <td>{% if row.user_id %}{{ row.user_id }}{% else %}—{% endif %}</td>
+                <td><code>{{ row.session_key|truncatechars:10 }}</code></td>
+                <td>{{ row.page|default:row.path }}</td>
+                <td>
+                  {% if row.product_name %}{{ row.product_name }}{% endif %}
+                  {% if row.element_text %}{{ row.element_text|truncatechars:40 }}{% endif %}
+                  {% if row.order_id %}#{{ row.order_id }}{% endif %}
+                  {% if row.method %}{{ row.method }} {{ row.status_code }}{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="analytics-pagination" aria-label="{% trans "Activity log pagination" %}">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="button small">{% trans "Previous" %}</a>
+          {% endif %}
+          <span class="analytics-page-info">
+            {% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}
+              Page {{ page }} of {{ total }}
+            {% endblocktrans %}
+          </span>
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="button small">{% trans "Next" %}</a>
+          {% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="analytics-empty">{% trans "Waiting for analytics events..." %}</p>
+    {% endif %}
+  </section>
+</section>
+
+{{ hourly|json_script:"hourly-data" }}
+{{ funnel|json_script:"funnel-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+  const hourly = JSON.parse(document.getElementById('hourly-data').textContent);
+  const funnel = JSON.parse(document.getElementById('funnel-data').textContent);
+  const funnelRow = funnel[0] || {};
+
+  const trafficLabels = hourly.map((row) => row.hour);
+  const trafficCtx = document.getElementById('trafficChart');
+
+  if (trafficCtx && hourly.length) {
+    new Chart(trafficCtx, {
+      type: 'line',
+      data: {
+        labels: trafficLabels,
+        datasets: [
+          { label: 'Page views', data: hourly.map((row) => row.page_views), borderColor: '#c45d3a', tension: 0.3 },
+          { label: 'Product views', data: hourly.map((row) => row.product_views), borderColor: '#2f6b4f', tension: 0.3 },
+          { label: 'Cart adds', data: hourly.map((row) => row.cart_adds), borderColor: '#6b5f56', tension: 0.3 },
+          { label: 'Clicks', data: hourly.map((row) => row.clicks), borderColor: '#8b5cf6', tension: 0.3 },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      },
+    });
+  }
+
+  const funnelCtx = document.getElementById('funnelChart');
+  if (funnelCtx) {
+    new Chart(funnelCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Pages', 'Products', 'Cart', 'Orders', 'Paid'],
+        datasets: [{
+          label: '7-day funnel',
+          data: [
+            funnelRow.page_views || 0,
+            funnelRow.product_views || 0,
+            funnelRow.cart_adds || 0,
+            funnelRow.orders || 0,
+            funnelRow.paid_orders || 0,
+          ],
+          backgroundColor: ['#f8e8e1', '#e4f0ea', '#efe5da', '#c45d3a', '#2f6b4f'],
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      },
+    });
+  }
+</script>
+{% endblock %}
