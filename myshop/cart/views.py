@@ -3,6 +3,7 @@ from django.views.decorators.http import require_POST
 from shop.models import Product
 from .cart import Cart
 from .forms import CartAddProductForm
+from shop.kafka_events import publish_event
 
 
 @require_POST
@@ -18,6 +19,22 @@ def cart_add(request, product_id):
             quantity=cd['quantity'],
             override_quantity=cd['override']
         )
+
+        publish_event(
+            'cart.item_added',
+            {
+                'product_id': product.id,
+                'product_slug': product.slug,
+                'product_name': product.name,
+                'user_id': request.user.pk if request.user.is_authenticated else None,
+                'session_key': request.session.session_key,
+                'quantity': cd['quantity'],
+                'override': cd['override'],
+                'line_quantity': cart.cart[str(product.id)]['quantity'],
+            },
+            key=product.id,
+        )
+
     return redirect('cart:cart_detail')
 
 
