@@ -202,3 +202,5 @@ STRIPE_DASHBOARD_URL = os.environ.get(
     'STRIPE_DASHBOARD_URL',
     'https://dashboard.stripe.com/acct_1SH1rmR7qENEnFUv/test/dashboard',
 )
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
+KAFKA_EVENTS_TOPIC = os.environ.get('KAFKA_EVENTS_TOPIC', 'shop.events')
