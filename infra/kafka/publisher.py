@@ -35,6 +35,9 @@ PAGE = """
     input[type=range] { width: 100%; }
     button { margin-top: 1rem; padding: 0.6rem 1rem; border: 0; border-radius: 8px; background: #c45d3a; color: #fff; cursor: pointer; }
     .stats { margin-top: 1rem; font-size: 0.95rem; }
+    .status { margin-top: 0.75rem; font-weight: 600; }
+    .status.running { color: #2d6a4f; }
+    .status.stopped { color: #9b2226; }
     code { background: #f4f4f4; padding: 0.1rem 0.35rem; border-radius: 4px; }
   </style>
 </head>
@@ -43,9 +46,12 @@ PAGE = """
   <p>Topic: <code>{{ topic }}</code> · bootstrap: <code>{{ bootstrap }}</code></p>
   <div class="card">
     <label for="rate">Messages per second: <strong id="rateLabel">{{ rate }}</strong></label>
-    <input id="rate" type="range" min="1" max="500" value="{{ rate }}">
+    <input id="rate" type="range" min="0" max="500" value="{{ rate }}">
     <button onclick="applyRate()">Apply settings</button>
     <div class="stats">
+      <div id="status" class="status {{ 'stopped' if rate == 0 else 'running' }}">
+        {{ 'Stopped' if rate == 0 else 'Publishing' }}
+      </div>
       <div>Total sent: <strong id="sent">{{ sent }}</strong></div>
       <div>Open <a href="http://localhost:8080" target="_blank">Kafka UI</a> to inspect partitions and lag.</div>
     </div>
@@ -53,7 +59,18 @@ PAGE = """
   <script>
     const slider = document.getElementById('rate');
     const rateLabel = document.getElementById('rateLabel');
-    slider.addEventListener('input', () => rateLabel.textContent = slider.value);
+    const statusEl = document.getElementById('status');
+    function updateStatus(rate) {
+      rateLabel.textContent = rate;
+      if (Number(rate) === 0) {
+        statusEl.textContent = 'Stopped';
+        statusEl.className = 'status stopped';
+      } else {
+        statusEl.textContent = 'Publishing';
+        statusEl.className = 'status running';
+      }
+    }
+    slider.addEventListener('input', () => updateStatus(slider.value));
     async function applyRate() {
       const response = await fetch('/apply', {
         method: 'POST',
@@ -62,12 +79,18 @@ PAGE = """
       });
       const data = await response.json();
       document.getElementById('sent').textContent = data.sent;
-      alert('Rate updated to ' + data.rate + ' msg/s');
+      updateStatus(data.rate);
+      const message = data.rate === 0
+        ? 'Publisher stopped (0 msg/s)'
+        : 'Rate updated to ' + data.rate + ' msg/s';
+      alert(message);
     }
     setInterval(async () => {
       const response = await fetch('/stats');
       const data = await response.json();
       document.getElementById('sent').textContent = data.sent;
+      slider.value = data.rate;
+      updateStatus(data.rate);
     }, 2000);
   </script>
 </body>
@@ -94,10 +117,10 @@ def publisher_loop():
         with lock:
             rate = state['rate']
             running = state['running']
-        if not running:
+        if not running or rate <= 0:
             time.sleep(0.5)
             continue
-        interval = 1.0 / max(rate, 1)
+        interval = 1.0 / rate
         payload = {
             'event': 'load.test',
             'id': str(uuid.uuid4()),
@@ -136,7 +159,7 @@ def apply():
 
     data = request.get_json(silent=True) or {}
     rate = int(data.get('rate', state['rate']))
-    rate = max(1, min(rate, 500))
+    rate = max(0, min(rate, 500))
     with lock:
         state['rate'] = rate
         sent = state['sent']
