@@ -35,6 +35,6 @@ def process_number(number=5):
 @shared_task(queue='front_rubbish')
 def what_time_is_it():
     print(f"Сколько времени??")
-    time.sleep(10)  # имитация длительной операции
+    time.sleep(5)  # имитация длительной операции
     print(f"Сейчас {time.strftime('%H:%M:%S')}")
     return time.strftime('%H:%M:%S')

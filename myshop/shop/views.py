@@ -27,7 +27,7 @@ def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
     process_number.delay(5)
-    for i in range(10):
+    for i in range(5):
         what_time_is_it.delay()
 
     return render(
