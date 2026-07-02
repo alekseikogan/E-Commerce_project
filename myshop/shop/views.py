@@ -1,6 +1,7 @@
 from cart.forms import CartAddProductForm
 from django.shortcuts import get_object_or_404, render
 
+from .kafka_events import publish_event
 from .models import Category, Product
 
 
@@ -25,6 +26,18 @@ def product_list(request, category_slug=None):
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
+
+    publish_event(
+        'product.viewed',
+        {
+            'product_id': product.id,
+            'product_slug': product.slug,
+            'product_name': product.name,
+            'user_id': request.user.pk if request.user.is_authenticated else None,
+            'session_key': request.session.session_key,
+        },
+        key=product.id,
+    )
 
     return render(
         request,
