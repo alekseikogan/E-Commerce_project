@@ -1,0 +1,25 @@
+{% extends "shop/base.html" %}
+
+{% block title %}My account · Cozy Coza{% endblock %}
+
+{% block content %}
+<section class="content-card profile-layout">
+  <div class="section-heading">
+    <div>
+      <h2>My account</h2>
+      <p>Manage your orders and account settings.</p>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <a href="{% url 'accounts:order_history' %}" class="profile-card">
+      <h3>Order history</h3>
+      <p>View your past purchases and payment status.</p>
+    </a>
+    <a href="{% url 'accounts:password_change' %}" class="profile-card">
+      <h3>Change password</h3>
+      <p>Update your login password securely.</p>
+    </a>
+  </div>
+</section>
+{% endblock %}

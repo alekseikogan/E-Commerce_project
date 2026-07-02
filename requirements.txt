@@ -4,7 +4,6 @@ stripe==15.3.0
 weasyprint==69.0
 python-dotenv==1.2.1
 easy-thumbnails==2.9
-django-rosetta==0.9.9
 gunicorn==26.0.0
 psycopg2-binary==2.9.11
 Pillow==12.2.0

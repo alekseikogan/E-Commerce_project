@@ -4,7 +4,7 @@
 {% load i18n %}
 
 {% block title %}
-  {% if category %}{{ category.name }}{% else %}{% trans "Catalog" %}{% endif %} · Mele Shop
+  {% if category %}{{ category.name }}{% else %}Catalog{% endif %} · Cozy Coza
 {% endblock %}
 
 {% block hero %}
@@ -12,22 +12,22 @@
   <div class="container">
     <div class="hero-card">
       <div class="hero-copy">
-        <h1>{% trans "Discover products with warmth and character" %}</h1>
-        <p>{% trans "A curated collection of instruments, accessories, and lifestyle goods selected for quality, comfort, and everyday joy." %}</p>
+        <h1>Discover products with warmth and character</h1>
+        <p>A curated collection of ukuleles, accessories, and cozy home goods selected for quality and everyday joy.</p>
         <div class="hero-badges">
-          <span class="badge">{% trans "Free inspiration with every order" %}</span>
-          <span class="badge">{% trans "Carefully selected assortment" %}</span>
-          <span class="badge">{% trans "Secure Stripe checkout" %}</span>
+          <span class="badge">Thoughtfully selected assortment</span>
+          <span class="badge">Comfort-first lifestyle goods</span>
+          <span class="badge">Secure Stripe checkout</span>
         </div>
       </div>
       <div class="hero-panel">
         <div class="stat-card">
           <strong>{{ products|length }}</strong>
-          <span>{% if category %}{% trans "Products in this category" %}{% else %}{% trans "Products available now" %}{% endif %}</span>
+          <span>{% if category %}Products in this category{% else %}Products available now{% endif %}</span>
         </div>
         <div class="stat-card">
           <strong>{{ categories|length }}</strong>
-          <span>{% trans "Categories to explore" %}</span>
+          <span>Categories to explore</span>
         </div>
       </div>
     </div>
@@ -38,10 +38,10 @@
 {% block content %}
 <div class="page-layout">
   <aside class="sidebar-card">
-    <h3>{% trans "Categories" %}</h3>
+    <h3>Categories</h3>
     <ul class="category-list">
       <li {% if not category %}class="selected"{% endif %}>
-        <a href="{% url 'shop:product_list' %}">{% trans "All products" %}</a>
+        <a href="{% url 'shop:product_list' %}">All products</a>
       </li>
       {% for c in categories %}
         <li {% if category and category.slug == c.slug %}class="selected"{% endif %}>
@@ -57,11 +57,11 @@
         <h2>
           {% if category %}
             {{ category.name }}
-          {% else %}
-            {% trans "All products" %}
+            {% else %}
+            All products
           {% endif %}
         </h2>
-        <p>{% trans "Browse the collection and add your favorites to the cart." %}</p>
+        <p>Browse the collection and add your favorites to the cart.</p>
       </div>
     </div>
 
@@ -81,7 +81,7 @@
               <a href="{{ product.get_absolute_url }}" class="product-card-title">{{ product.name }}</a>
               <div class="product-card-footer">
                 <span class="price">{{ product.price }} ₽</span>
-                <a href="{{ product.get_absolute_url }}" class="button small">{% trans "View" %}</a>
+                <a href="{{ product.get_absolute_url }}" class="button small">View</a>
               </div>
             </div>
           </article>
@@ -89,8 +89,8 @@
       </div>
     {% else %}
       <div class="empty-state">
-        <h3>{% trans "No products yet" %}</h3>
-        <p>{% trans "Load the demo fixture or add products in the admin panel." %}</p>
+      <h3>No products yet</h3>
+      <p>Load the demo fixture or add products in the admin panel.</p>
       </div>
     {% endif %}
   </section>

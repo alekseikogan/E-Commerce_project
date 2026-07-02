@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'easy_thumbnails',
-    'rosetta',  # 551
 
     'shop.apps.ShopConfig',  # 389
     'cart.apps.CartConfig',  # 406
@@ -76,12 +75,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myshop.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ.get('POSTGRES_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'cozy_coza'),
+            'USER': os.environ.get('POSTGRES_USER', 'cozy_coza'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'cozy_coza'),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -186,4 +197,8 @@ FLOWER_URL = os.environ.get('FLOWER_URL', 'http://localhost:5555')
 RABBITMQ_MANAGEMENT_URL = os.environ.get(
     'RABBITMQ_MANAGEMENT_URL',
     'http://localhost:15672',
+)
+STRIPE_DASHBOARD_URL = os.environ.get(
+    'STRIPE_DASHBOARD_URL',
+    'https://dashboard.stripe.com/acct_1SH1rmR7qENEnFUv/test/dashboard',
 )

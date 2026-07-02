@@ -1,6 +1,24 @@
 name: mele_shop
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: mele_shop_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   web:
     build:
       context: ..
@@ -15,10 +33,12 @@ services:
       - .env
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      POSTGRES_HOST: db
     volumes:
-      - ../myshop/db.sqlite3:/app/db.sqlite3
       - ../myshop/media:/app/media
     depends_on:
+      db:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
@@ -33,10 +53,12 @@ services:
       - .env
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      POSTGRES_HOST: db
     volumes:
-      - ../myshop/db.sqlite3:/app/db.sqlite3
       - ../myshop/media:/app/media
     depends_on:
+      db:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       web:
@@ -65,7 +87,7 @@ services:
   stripe-cli:
     image: stripe/stripe-cli:latest
     container_name: mele_shop_stripe_cli
-    command: listen --api-key ${STRIPE_SECRET_KEY} --forward-to http://web:8000/ru/payment/webhook/ --events checkout.session.completed
+    command: listen --api-key ${STRIPE_SECRET_KEY} --forward-to http://web:8000/en/payment/webhook/ --events checkout.session.completed
     env_file:
       - .env
     depends_on:
@@ -85,3 +107,6 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+volumes:
+  postgres_data:

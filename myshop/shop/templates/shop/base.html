@@ -2,11 +2,11 @@
 {% load i18n %}
 {% load user_extras %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}{% trans "Mele Shop" %}{% endblock %}</title>
+    <title>{% block title %}Cozy Coza{% endblock %}</title>
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
   </head>
 
@@ -14,54 +14,57 @@
     <header class="site-header">
       <div class="container header-inner">
         <a href="/" class="brand">
-          <span class="brand-mark">M</span>
+          <span class="brand-mark">C</span>
           <span class="brand-copy">
-            <strong>{% trans "Mele Shop" %}</strong>
-            <span>{% trans "Curated goods with island soul" %}</span>
+            <strong>Cozy Coza</strong>
+            <span>Curated goods for a softer everyday</span>
           </span>
         </a>
 
         <nav class="header-nav">
-          <a href="{% url 'shop:product_list' %}" class="nav-link">{% trans "Catalog" %}</a>
+          <a href="{% url 'shop:product_list' %}" class="nav-link">Catalog</a>
         </nav>
 
         <div class="header-actions">
           {% if user.is_staff %}
             <details class="nav-dropdown admin-dropdown">
-              <summary class="dropdown-trigger burger-trigger" aria-label="{% trans 'Admin tools' %}">
+              <summary class="dropdown-trigger burger-trigger" aria-label="Admin tools">
                 <span class="burger-icon" aria-hidden="true"></span>
               </summary>
               <div class="dropdown-menu">
-                <span class="dropdown-label">{% trans "Admin tools" %}</span>
-                <a href="{% url 'admin:index' %}" target="_blank" rel="noopener">{% trans "Django admin" %}</a>
+                <span class="dropdown-label">Admin tools</span>
+                <a href="{% url 'admin:index' %}" target="_blank" rel="noopener">Django admin</a>
+                <a href="{{ stripe_dashboard_url }}" target="_blank" rel="noopener">Stripe Dashboard</a>
                 <a href="{{ flower_url }}" target="_blank" rel="noopener">Flower</a>
                 <a href="{{ rabbitmq_url }}" target="_blank" rel="noopener">RabbitMQ</a>
-                <a href="{% url 'admin:shop_product_changelist' %}">{% trans "Products" %}</a>
-                <a href="{% url 'admin:orders_order_changelist' %}">{% trans "Orders" %}</a>
-                <a href="/{{ LANGUAGE_CODE }}/rosetta/">Rosetta</a>
+                <a href="{% url 'admin:shop_product_changelist' %}">Products</a>
+                <a href="{% url 'admin:orders_order_changelist' %}">Orders</a>
               </div>
             </details>
           {% endif %}
 
           {% if user.is_authenticated %}
             <details class="nav-dropdown user-dropdown">
-              <summary class="dropdown-trigger avatar-trigger" aria-label="{% trans 'Account menu' %}">
+              <summary class="dropdown-trigger avatar-trigger" aria-label="Account menu">
                 <span class="user-avatar">{{ user|user_initials }}</span>
                 <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
               </summary>
               <div class="dropdown-menu dropdown-menu-right">
                 <span class="dropdown-label">{{ user.get_full_name|default:user.username }}</span>
                 <span class="dropdown-meta">{{ user.email }}</span>
+                <a href="{% url 'accounts:profile' %}">My account</a>
+                <a href="{% url 'accounts:order_history' %}">Order history</a>
+                <a href="{% url 'accounts:password_change' %}">Change password</a>
                 <form action="{% url 'accounts:logout' %}" method="post">
                   {% csrf_token %}
-                  <button type="submit">{% trans "Sign out" %}</button>
+                  <button type="submit">Sign out</button>
                 </form>
               </div>
             </details>
           {% else %}
             <div class="auth-links">
-              <a href="{% url 'accounts:login' %}" class="nav-link">{% trans "Sign in" %}</a>
-              <a href="{% url 'accounts:register' %}" class="button small">{% trans "Register" %}</a>
+              <a href="{% url 'accounts:login' %}" class="nav-link">Sign in</a>
+              <a href="{% url 'accounts:register' %}" class="button small">Register</a>
             </div>
           {% endif %}
         </div>
@@ -84,7 +87,7 @@
                 </span>
               </a>
             {% elif not order %}
-              <span class="cart-empty">{% trans "Your cart is empty." %}</span>
+              <span class="cart-empty">Your cart is empty.</span>
             {% endif %}
           {% endwith %}
         </div>
@@ -108,8 +111,8 @@
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <span>© {% now "Y" %} Mele Shop</span>
-        <span>{% trans "Handpicked products · Fast checkout · Secure payments" %}</span>
+        <span>© {% now "Y" %} Cozy Coza</span>
+        <span>Handpicked products · Fast checkout · Secure payments</span>
       </div>
     </footer>
 

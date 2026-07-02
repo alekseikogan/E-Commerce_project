@@ -1,10 +1,20 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from shop.models import Product
 
+User = get_user_model()
+
 
 class Order(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='orders',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     first_name = models.CharField(_('first name'), max_length=50)
     last_name = models.CharField(_('last name'), max_length=50)
     email = models.EmailField(_('e-mail'))
