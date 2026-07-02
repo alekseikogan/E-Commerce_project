@@ -5,7 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from shop.clickhouse_client import query_dicts
@@ -135,7 +135,7 @@ def analytics_dashboard(request):
     return render(request, 'shop/analytics/dashboard.html', context)
 
 
-@ensure_csrf_cookie
+@csrf_exempt
 @require_POST
 def track_clicks(request):
     try:

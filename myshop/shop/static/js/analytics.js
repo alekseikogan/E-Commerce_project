@@ -8,15 +8,6 @@
   let flushTimer = null;
   const page = document.body.dataset.analyticsPage || window.location.pathname;
 
-  function getCsrfToken() {
-    const meta = document.querySelector('meta[name="csrf-token"]');
-    if (meta && meta.content) {
-      return meta.content;
-    }
-    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-  }
-
   function elementDescriptor(target) {
     if (!target) {
       return '';
@@ -29,7 +20,28 @@
     return tag + id + classes;
   }
 
-  function flush() {
+  function sendPayload(payload, preferBeacon) {
+    const body = JSON.stringify(payload);
+
+    if (preferBeacon && navigator.sendBeacon) {
+      const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
+      if (navigator.sendBeacon(trackUrl, blob)) {
+        return;
+      }
+    }
+
+    fetch(trackUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=UTF-8',
+      },
+      body: body,
+      keepalive: true,
+      credentials: 'same-origin',
+    }).catch(() => {});
+  }
+
+  function flush(preferBeacon) {
     if (flushTimer) {
       window.clearTimeout(flushTimer);
       flushTimer = null;
@@ -38,37 +50,25 @@
       return;
     }
 
-    const payload = {
+    sendPayload({
       page: page,
       events: queue.splice(0, queue.length),
-    };
-
-    const csrfToken = getCsrfToken();
-    fetch(trackUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
-      },
-      body: JSON.stringify(payload),
-      keepalive: true,
-      credentials: 'same-origin',
-    }).catch(() => {});
+    }, preferBeacon);
   }
 
-  function scheduleFlush(immediate) {
-    if (immediate) {
-      flush();
+  function scheduleFlush(preferBeacon) {
+    if (preferBeacon) {
+      flush(true);
       return;
     }
     if (!flushTimer) {
-      flushTimer = window.setTimeout(flush, 300);
+      flushTimer = window.setTimeout(() => flush(false), 300);
     }
   }
 
   function enqueueClick(event) {
     const target = event.target.closest(
-      'a, button, input[type="submit"], .button, .nav-link, .product-card, summary'
+      'a, button, input, select, textarea, summary, label, .button, .nav-link, .product-card, .product-card-title, .product-card-media'
     );
     if (!target) {
       return;
@@ -89,18 +89,14 @@
       || target.tagName === 'INPUT'
       || target.type === 'submit';
 
-    if (navigates || submits || queue.length >= 10) {
-      scheduleFlush(true);
-    } else {
-      scheduleFlush(false);
-    }
+    scheduleFlush(navigates || submits || queue.length >= 5);
   }
 
   document.addEventListener('click', enqueueClick, true);
-  window.addEventListener('pagehide', flush);
+  window.addEventListener('pagehide', () => flush(true));
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      flush();
+      flush(true);
     }
   });
 })();
