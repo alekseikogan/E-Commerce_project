@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Cozy Coza">
+  <defs>
+    <linearGradient id="brand" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c45d3a"/>
+      <stop offset="100%" stop-color="#e09063"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="9" fill="url(#brand)"/>
+  <text
+    x="16"
+    y="22.5"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="18"
+    font-weight="700"
+    fill="#ffffff"
+    text-anchor="middle"
+  >C</text>
+</svg>

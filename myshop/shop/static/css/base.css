@@ -427,6 +427,19 @@ p {
     color: var(--color-accent);
 }
 
+.product-popularity {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    width: fit-content;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+}
+
 .product-card-title {
     font-family: 'Fraunces', serif;
     font-size: 1.15rem;

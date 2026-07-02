@@ -1,3 +1,5 @@
+from django.db.models import IntegerField, Value
+from django.db.models.functions import Coalesce
 from cart.forms import CartAddProductForm
 from django.shortcuts import get_object_or_404, render
 
@@ -8,7 +10,18 @@ from .models import Category, Product
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
-    products = Product.objects.filter(available=True)
+    products = (
+        Product.objects.filter(available=True)
+        .select_related('category', 'stats')
+        .annotate(
+            popularity=Coalesce(
+                'stats__popularity_score',
+                Value(0),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by('-popularity', 'name')
+    )
 
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)

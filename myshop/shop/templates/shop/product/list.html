@@ -61,7 +61,7 @@
             All products
           {% endif %}
         </h2>
-        <p>Browse the collection and add your favorites to the cart.</p>
+        <p>{% trans "Browse the collection, sorted by popularity." %}</p>
       </div>
     </div>
 
@@ -78,6 +78,9 @@
             </a>
             <div class="product-card-body">
               <span class="product-card-category">{{ product.category.name }}</span>
+              <span class="product-popularity" title="{% trans "Popularity score" %}">
+                ★ {{ product.popularity }}
+              </span>
               <a href="{{ product.get_absolute_url }}" class="product-card-title">{{ product.name }}</a>
               <div class="product-card-footer">
                 <span class="price">{{ product.price }} ₽</span>
