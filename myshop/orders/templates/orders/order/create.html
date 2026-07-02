@@ -16,9 +16,9 @@
 
   <div class="checkout-layout">
     <form method="post" class="order-form">
+      {% csrf_token %}
       {{ form.as_p }}
       <p><input type="submit" value="{% trans "Place order" %}" class="button"></p>
-      {% csrf_token %}
     </form>
 
     <aside class="order-info">

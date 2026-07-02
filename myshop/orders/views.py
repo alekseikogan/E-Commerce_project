@@ -1,3 +1,5 @@
+import logging
+
 import weasyprint
 from cart.cart import Cart
 from django.conf import settings
@@ -13,12 +15,17 @@ from shop.kafka_events import publish_event
 from .form import OrderCreateForm
 from .models import Order, OrderItem
 
+logger = logging.getLogger(__name__)
+
 
 def order_create(request):
     cart = Cart(request)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
+            if len(cart) == 0:
+                return redirect('cart:cart_detail')
+
             order = form.save(commit=False)
             if request.user.is_authenticated:
                 order.user = request.user
@@ -38,8 +45,15 @@ def order_create(request):
                 })
             total_cost = str(cart.get_total_price())
             cart.clear()  # очистить корзину
-            order_created.delay(order.id)  # пишет письмо
             request.session['order_id'] = order.id  # сохранить номер заказа
+
+            try:
+                order_created.delay(order.id)  # пишет письмо
+            except Exception:
+                logger.exception(
+                    'Failed to enqueue order notification for order %s',
+                    order.id,
+                )
 
             publish_event(
                 'order.created',
@@ -57,9 +71,12 @@ def order_create(request):
             return redirect(reverse('payment:process'))
     else:
         form = OrderCreateForm()
-        return render(request,
-                      'orders/order/create.html',
-                      {'cart': cart, 'form': form})
+
+    return render(
+        request,
+        'orders/order/create.html',
+        {'cart': cart, 'form': form},
+    )
 
 
 @staff_member_required
