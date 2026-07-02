@@ -42,7 +42,23 @@ def cart_add(request, product_id):
 def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
+    product_id_str = str(product.id)
+    line_quantity = cart.cart.get(product_id_str, {}).get('quantity')
     cart.remove(product)
+
+    publish_event(
+        'cart.item_removed',
+        {
+            'product_id': product.id,
+            'product_slug': product.slug,
+            'product_name': product.name,
+            'user_id': request.user.pk if request.user.is_authenticated else None,
+            'session_key': request.session.session_key,
+            'line_quantity': line_quantity,
+        },
+        key=product.id,
+    )
+
     return redirect('cart:cart_detail')
 
 

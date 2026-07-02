@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 
 from orders.tasks import order_created
+from shop.kafka_events import publish_event
 
 from .form import OrderCreateForm
 from .models import Order, OrderItem
@@ -22,14 +23,37 @@ def order_create(request):
             if request.user.is_authenticated:
                 order.user = request.user
             order.save()
+            items = []
             for item in cart:
                 OrderItem.objects.create(order=order,
                                          product=item['product'],
                                          price=item['price'],
                                          quantity=item['quantity'])
+                items.append({
+                    'product_id': item['product'].id,
+                    'product_slug': item['product'].slug,
+                    'product_name': item['product'].name,
+                    'quantity': item['quantity'],
+                    'price': str(item['price']),
+                })
+            total_cost = str(cart.get_total_price())
             cart.clear()  # очистить корзину
             order_created.delay(order.id)  # пишет письмо
             request.session['order_id'] = order.id  # сохранить номер заказа
+
+            publish_event(
+                'order.created',
+                {
+                    'order_id': order.id,
+                    'user_id': order.user_id,
+                    'email': order.email,
+                    'items': items,
+                    'items_count': len(items),
+                    'total_cost': total_cost,
+                },
+                key=order.id,
+            )
+
             return redirect(reverse('payment:process'))
     else:
         form = OrderCreateForm()
