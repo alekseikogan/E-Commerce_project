@@ -204,3 +204,10 @@ STRIPE_DASHBOARD_URL = os.environ.get(
 )
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
 KAFKA_EVENTS_TOPIC = os.environ.get('KAFKA_EVENTS_TOPIC', 'shop.events')
+
+PRODUCT_POPULARITY_WEIGHTS = {
+    'views': 1,
+    'cart_adds': 3,
+    'orders': 10,
+    'paid': 20,
+}

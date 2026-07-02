@@ -181,6 +181,28 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  kafka-rating-consumer:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: mele_shop_kafka_rating_consumer
+    command: python manage.py consume_product_ratings
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_EVENTS_TOPIC: shop.events
+      KAFKA_RATING_GROUP_ID: cozy-coza-rating
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      web:
+        condition: service_started
+    restart: unless-stopped
+
   kafka-load-consumer:
     build:
       context: ./kafka

@@ -48,3 +48,24 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse('shop:product_detail', args=[self.id, self.slug])
+
+
+class ProductStats(models.Model):
+    product = models.OneToOneField(
+        Product,
+        related_name='stats',
+        on_delete=models.CASCADE,
+    )
+    views_count = models.PositiveIntegerField(default=0)
+    cart_adds_count = models.PositiveIntegerField(default=0)
+    orders_count = models.PositiveIntegerField(default=0)
+    paid_count = models.PositiveIntegerField(default=0)
+    popularity_score = models.PositiveIntegerField(default=0, db_index=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'product stats'
+        verbose_name_plural = 'product stats'
+
+    def __str__(self):
+        return f'Stats for {self.product.name} (score={self.popularity_score})'
