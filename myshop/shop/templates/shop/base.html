@@ -13,8 +13,8 @@
   </head>
 
   <body
-    data-analytics-track-url="{% url 'analytics_track' %}"
-    data-analytics-page="{% if request.resolver_match %}{{ request.resolver_match.view_name }}{% endif %}"
+    data-event-collect-url="{% url 'event_collect' %}"
+    data-event-page="{% if request.resolver_match %}{{ request.resolver_match.view_name }}{% endif %}"
   >
     <header class="site-header">
       <div class="container header-inner">
@@ -147,6 +147,6 @@
         }
       });
     </script>
-    <script src="{% static 'js/analytics.js' %}?v=3" defer></script>
+    <script src="{% static 'js/shop-events.js' %}?v=1" defer></script>
   </body>
 </html>

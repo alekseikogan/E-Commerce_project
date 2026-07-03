@@ -8,7 +8,7 @@ SKIP_PREFIXES = (
     '/static/',
     '/media/',
     '/favicon',
-    '/analytics/track/',
+    '/e/',
 )
 
 SKIP_EXACT = (

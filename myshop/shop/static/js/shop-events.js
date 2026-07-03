@@ -1,11 +1,11 @@
 (function () {
-  const trackUrl = document.body.dataset.analyticsTrackUrl;
+  const trackUrl = document.body.dataset.eventCollectUrl;
   if (!trackUrl) {
     return;
   }
 
   const queue = [];
-  const page = document.body.dataset.analyticsPage || window.location.pathname;
+  const page = document.body.dataset.eventPage || window.location.pathname;
 
   function elementDescriptor(target) {
     if (!target) {
@@ -20,14 +20,16 @@
   }
 
   function sendPayload(payload) {
-    const body = JSON.stringify(payload);
+    const formData = new FormData();
+    formData.append('payload', JSON.stringify(payload));
+
+    if (navigator.sendBeacon && navigator.sendBeacon(trackUrl, formData)) {
+      return;
+    }
 
     fetch(trackUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=UTF-8',
-      },
-      body: body,
+      body: formData,
       keepalive: true,
       credentials: 'same-origin',
     }).catch(() => {});

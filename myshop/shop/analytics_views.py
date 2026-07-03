@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -10,6 +11,8 @@ from django.views.decorators.http import require_POST
 
 from shop.clickhouse_client import query_dicts
 from shop.kafka_events import publish_event
+
+logger = logging.getLogger(__name__)
 
 EVENT_LABELS = {
     'request.access': 'HTTP access',
@@ -166,6 +169,7 @@ def track_clicks(request):
         'page': payload.get('page', '') if isinstance(payload, dict) else '',
     }
 
+    published = 0
     for item in events[:20]:
         if not isinstance(item, dict):
             continue
@@ -181,5 +185,9 @@ def track_clicks(request):
             },
             key=session_key or item.get('path'),
         )
+        published += 1
+
+    if published:
+        logger.info('Collected %s click(s) from %s', published, request.META.get('REMOTE_ADDR'))
 
     return JsonResponse({'ok': True})

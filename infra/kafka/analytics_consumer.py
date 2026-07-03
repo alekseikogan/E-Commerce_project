@@ -164,14 +164,14 @@ def flush_batch(client, batch):
     for attempt in range(1, 4):
         try:
             client.insert('shop_events', batch, column_names=COLUMN_NAMES)
-            print(f'Inserted {len(batch)} events into ClickHouse')
+            print(f'Inserted {len(batch)} events into ClickHouse', flush=True)
             return client
         except Exception as exc:
-            print(f'ClickHouse insert failed (attempt {attempt}/3): {exc}')
+            print(f'ClickHouse insert failed (attempt {attempt}/3): {exc}', flush=True)
             time.sleep(2)
             client = wait_for_clickhouse()
 
-    print(f'Dropped batch of {len(batch)} events after retries')
+    print(f'Dropped batch of {len(batch)} events after retries', flush=True)
     return client
 
 
@@ -188,7 +188,8 @@ def main():
     )
     print(
         f'Analytics consumer listening on "{TOPIC}" '
-        f'(group: {GROUP_ID}) -> ClickHouse {CLICKHOUSE_HOST}:{CLICKHOUSE_PORT}'
+        f'(group: {GROUP_ID}) -> ClickHouse {CLICKHOUSE_HOST}:{CLICKHOUSE_PORT}',
+        flush=True,
     )
 
     batch = []
