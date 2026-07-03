@@ -138,8 +138,14 @@ def analytics_dashboard(request):
 @csrf_exempt
 @require_POST
 def track_clicks(request):
+    raw_body = request.POST.get('payload')
+    if raw_body is None:
+        raw_body = request.body.decode('utf-8', errors='replace').strip()
+    if not raw_body:
+        return JsonResponse({'ok': False, 'error': 'empty body'}, status=400)
+
     try:
-        payload = json.loads(request.body.decode('utf-8'))
+        payload = json.loads(raw_body)
     except (json.JSONDecodeError, UnicodeDecodeError):
         return JsonResponse({'ok': False, 'error': 'invalid json'}, status=400)
 

@@ -94,10 +94,10 @@ def wait_for_clickhouse():
                 password=CLICKHOUSE_PASSWORD,
                 database=CLICKHOUSE_DATABASE,
             )
-            client.query('SELECT 1')
+            client.query('SELECT 1 FROM shop_events LIMIT 1')
             return client
-        except OperationalError:
-            print('Waiting for ClickHouse...')
+        except Exception as exc:
+            print(f'Waiting for ClickHouse ({CLICKHOUSE_DATABASE}.shop_events): {exc}')
             time.sleep(3)
 
 
@@ -159,9 +159,20 @@ def event_to_row(payload, partition, offset):
 
 def flush_batch(client, batch):
     if not batch:
-        return
-    client.insert('shop_events', batch, column_names=COLUMN_NAMES)
-    print(f'Inserted {len(batch)} events into ClickHouse')
+        return client
+
+    for attempt in range(1, 4):
+        try:
+            client.insert('shop_events', batch, column_names=COLUMN_NAMES)
+            print(f'Inserted {len(batch)} events into ClickHouse')
+            return client
+        except Exception as exc:
+            print(f'ClickHouse insert failed (attempt {attempt}/3): {exc}')
+            time.sleep(2)
+            client = wait_for_clickhouse()
+
+    print(f'Dropped batch of {len(batch)} events after retries')
+    return client
 
 
 def main():
@@ -193,7 +204,7 @@ def main():
         batch.append(event_to_row(payload, message.partition, message.offset))
 
         if len(batch) >= BATCH_SIZE or time.monotonic() - last_flush >= FLUSH_INTERVAL:
-            flush_batch(client, batch)
+            client = flush_batch(client, batch)
             batch = []
             last_flush = time.monotonic()
 

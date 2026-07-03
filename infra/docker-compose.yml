@@ -237,6 +237,8 @@ services:
       CLICKHOUSE_USER: default
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
     depends_on:
+      clickhouse:
+        condition: service_healthy
       clickhouse-init:
         condition: service_completed_successfully
       kafka-init:

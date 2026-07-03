@@ -5,7 +5,6 @@
   }
 
   const queue = [];
-  let flushTimer = null;
   const page = document.body.dataset.analyticsPage || window.location.pathname;
 
   function elementDescriptor(target) {
@@ -20,15 +19,8 @@
     return tag + id + classes;
   }
 
-  function sendPayload(payload, preferBeacon) {
+  function sendPayload(payload) {
     const body = JSON.stringify(payload);
-
-    if (preferBeacon && navigator.sendBeacon) {
-      const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
-      if (navigator.sendBeacon(trackUrl, blob)) {
-        return;
-      }
-    }
 
     fetch(trackUrl, {
       method: 'POST',
@@ -41,11 +33,7 @@
     }).catch(() => {});
   }
 
-  function flush(preferBeacon) {
-    if (flushTimer) {
-      window.clearTimeout(flushTimer);
-      flushTimer = null;
-    }
+  function flush() {
     if (!queue.length) {
       return;
     }
@@ -53,17 +41,7 @@
     sendPayload({
       page: page,
       events: queue.splice(0, queue.length),
-    }, preferBeacon);
-  }
-
-  function scheduleFlush(preferBeacon) {
-    if (preferBeacon) {
-      flush(true);
-      return;
-    }
-    if (!flushTimer) {
-      flushTimer = window.setTimeout(() => flush(false), 300);
-    }
+    });
   }
 
   function enqueueClick(event) {
@@ -84,19 +62,14 @@
       href: target.href || '',
     });
 
-    const navigates = target.tagName === 'A' && Boolean(target.href);
-    const submits = target.tagName === 'BUTTON'
-      || target.tagName === 'INPUT'
-      || target.type === 'submit';
-
-    scheduleFlush(navigates || submits || queue.length >= 5);
+    flush();
   }
 
   document.addEventListener('click', enqueueClick, true);
-  window.addEventListener('pagehide', () => flush(true));
+  window.addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      flush(true);
+      flush();
     }
   });
 })();
