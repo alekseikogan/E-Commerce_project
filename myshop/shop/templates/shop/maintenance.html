@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Технические работы — Cozy Coza</title>
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+    <style>
+      .maintenance {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+      }
+      .maintenance-card {
+        max-width: 32rem;
+        padding: 2.5rem 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+      }
+      .maintenance-card h1 {
+        font-family: Fraunces, Georgia, serif;
+        font-size: 1.75rem;
+        margin: 0 0 0.75rem;
+        color: var(--color-text);
+      }
+      .maintenance-card p {
+        margin: 0;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="maintenance">
+      <div class="maintenance-card">
+        <h1>Временно ведутся технические работы</h1>
+        <p>Мы скоро вернёмся. Спасибо за понимание.</p>
+      </div>
+    </main>
+  </body>
+</html>

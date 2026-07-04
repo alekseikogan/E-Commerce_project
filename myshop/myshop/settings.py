@@ -22,6 +22,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 
+# True — главная страница показывает шаблон техработ
+WORKS_ON = False
+
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [

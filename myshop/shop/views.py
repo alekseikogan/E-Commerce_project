@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models import IntegerField, Value
 from django.db.models.functions import Coalesce
 from cart.forms import CartAddProductForm
@@ -8,6 +9,9 @@ from .models import Category, Product
 
 
 def product_list(request, category_slug=None):
+    if category_slug is None and settings.WORKS_ON:
+        return render(request, 'shop/maintenance.html')
+
     category = None
     categories = Category.objects.all()
     products = (
