@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     shared-mime-info \
     fonts-liberation \
     fonts-dejavu \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем только зависимости (для использования кеша Docker)
@@ -36,4 +37,4 @@ COPY myshop/ .
 EXPOSE 8000
 
 # Команда запуска
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "myshop.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]

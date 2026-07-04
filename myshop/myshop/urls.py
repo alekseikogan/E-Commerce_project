@@ -3,11 +3,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
+from django.http import HttpResponse
 
 from shop.analytics_views import analytics_dashboard, track_clicks
 
+urlpatterns = [
+    path('health/', lambda request: HttpResponse('ok'), name='health'),
+]
 
-urlpatterns = i18n_patterns(
+urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('analytics/', analytics_dashboard, name='analytics_dashboard'),
     path('e/', track_clicks, name='event_collect'),
