@@ -56,6 +56,9 @@ done
 echo "==> Migrate (once, on target)"
 "${COMPOSE[@]}" "${PROFILE_ARGS[@]}" run --rm "$TARGET_SERVICE" python manage.py migrate --noinput
 
+"${COMPOSE[@]}" "${PROFILE_ARGS[@]}" run --rm "$TARGET_SERVICE" \
+  python manage.py collectstatic --noinput
+
 echo "==> Switch nginx to $TARGET"
 cp "$TARGET_CONF" "$ACTIVE"
 docker exec mele_shop_nginx nginx -s reload
