@@ -172,20 +172,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  kafka-consumer:
-    build:
-      context: ./kafka
-    container_name: mele_shop_kafka_consumer
-    command: python consumer.py
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC: shop.events
-      KAFKA_GROUP_ID: cozy-coza-events
-    depends_on:
-      kafka-init:
-        condition: service_completed_successfully
-    restart: unless-stopped
-
   kafka-rating-consumer:
     build:
       context: ..
