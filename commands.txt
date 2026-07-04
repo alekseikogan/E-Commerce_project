@@ -1,9 +1,16 @@
 ﻿Для докера:
 docker compose up --build -d
-python manage.py migrate
-geeky-dawn-champ-amazed
+
 Загрузка демо-данных (один раз)
 docker compose exec web python manage.py loaddata initial_data
+
+Просто запуск (цвет из infra/.zdd-active-color):
+cd infra && bash deploy/start-prod.sh
+
+
+Перезапуск после пуша нового кода:
+bash deploy/deploy-blue-green.sh
+
 
 python3 -m venv venv
 source venv/bin/activate.fish
