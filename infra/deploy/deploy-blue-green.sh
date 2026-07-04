@@ -65,8 +65,6 @@ docker exec mele_shop_nginx nginx -s reload
 
 echo "$TARGET" > "$STATE_FILE"
 echo "==> Live is now: $TARGET"
-
-echo "==> Stop $OLD_SERVICE"
-"${COMPOSE[@]}" stop "$OLD_SERVICE"
-
+echo "==> Old $OLD_SERVICE still running (rollback: cp nginx/${CURRENT}.conf nginx/active.conf && docker exec mele_shop_nginx nginx -s reload && echo $CURRENT > .zdd-active-color)"
+echo "==> When OK, stop old: docker compose -f docker-compose.yml -f docker-compose.zdd.yml stop $OLD_SERVICE"
 echo "==> Check: curl http://127.0.0.1:8088/health/"
