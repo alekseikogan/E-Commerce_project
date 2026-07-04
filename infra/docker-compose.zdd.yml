@@ -34,6 +34,7 @@ services:
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
     volumes:
       - ../myshop/media:/app/media
+      - ../myshop/static:/app/static
     depends_on:
       db:
         condition: service_healthy
@@ -67,6 +68,7 @@ services:
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cozy_coza}
     volumes:
       - ../myshop/media:/app/media
+      - ../myshop/static:/app/static
     depends_on:
       db:
         condition: service_healthy
