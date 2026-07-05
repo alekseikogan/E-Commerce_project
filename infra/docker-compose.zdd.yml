@@ -25,6 +25,8 @@ services:
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       POSTGRES_HOST: db
+      POSTGRES_REPLICA_HOST: db-replica
+      DB_READ_FROM_REPLICA: "true"
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_EVENTS_TOPIC: shop.events
       CLICKHOUSE_HOST: clickhouse
@@ -37,6 +39,8 @@ services:
       - ../myshop/static:/app/static
     depends_on:
       db:
+        condition: service_healthy
+      db-replica:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -59,6 +63,8 @@ services:
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       POSTGRES_HOST: db
+      POSTGRES_REPLICA_HOST: db-replica
+      DB_READ_FROM_REPLICA: "true"
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_EVENTS_TOPIC: shop.events
       CLICKHOUSE_HOST: clickhouse
@@ -71,6 +77,8 @@ services:
       - ../myshop/static:/app/static
     depends_on:
       db:
+        condition: service_healthy
+      db-replica:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy

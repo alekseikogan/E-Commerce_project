@@ -29,6 +29,14 @@ docker compose exec db-replica psql -U cozy_coza -d cozy_coza -c "SELECT pg_is_i
 
 # с хоста: master :5432, replica :5433
 
+Django read/write router (фаза 2):
+# web читает с replica, пишет в master; celery и kafka-rating-consumer — только master
+docker compose exec web_blue python manage.py shell -c "from django.db import router; from shop.models import Product; print('read:', router.db_for_read(Product)); print('write:', router.db_for_write(Product))"
+# read: replica, write: default
+
+docker compose exec web_blue python manage.py shell -c "from django.db import connections; c=connections['replica'].cursor(); c.execute('SELECT pg_is_in_recovery()'); print(c.fetchone())"
+# (True,) — Django читает с standby
+
 
 python3 -m venv venv
 source venv/bin/activate.fish

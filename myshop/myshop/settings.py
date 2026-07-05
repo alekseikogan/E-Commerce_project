@@ -6,12 +6,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from django.utils.translation import gettext_lazy as _
-from dotenv import load_dotenv
-
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def _env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.lower() in ('1', 'true', 'yes', 'on')
 
 
 # Quick-start development settings - unsuitable for production
@@ -84,17 +86,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myshop.wsgi.application'
 
 
+DB_READ_FROM_REPLICA = False
+
 if os.environ.get('POSTGRES_HOST'):
+    _pg_common = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'cozy_coza'),
+        'USER': os.environ.get('POSTGRES_USER', 'cozy_coza'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'cozy_coza'),
+    }
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('POSTGRES_DB', 'cozy_coza'),
-            'USER': os.environ.get('POSTGRES_USER', 'cozy_coza'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'cozy_coza'),
+            **_pg_common,
             'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
             'PORT': os.environ.get('POSTGRES_PORT', '5432'),
         }
     }
+    replica_host = os.environ.get('POSTGRES_REPLICA_HOST')
+    DB_READ_FROM_REPLICA = bool(replica_host) and _env_bool(
+        'DB_READ_FROM_REPLICA',
+        default=True,
+    )
+    if DB_READ_FROM_REPLICA:
+        DATABASES['replica'] = {
+            **_pg_common,
+            'HOST': replica_host,
+            'PORT': os.environ.get('POSTGRES_REPLICA_PORT', '5432'),
+        }
+        DATABASE_ROUTERS = ['myshop.db_router.PrimaryReplicaRouter']
 else:
     DATABASES = {
         'default': {
