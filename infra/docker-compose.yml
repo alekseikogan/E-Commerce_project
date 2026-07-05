@@ -8,15 +8,64 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:-replicator}
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - hot_standby=on
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres/primary/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres/primary/ensure-replication.sh:/scripts/ensure-replication.sh:ro
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc \"SELECT NOT pg_is_in_recovery();\" | grep -q t",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  db-replica:
+    image: postgres:16-alpine
+    container_name: mele_shop_db_replica
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PRIMARY_HOST: db
+      REPLICATION_USER: replicator
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:-replicator}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+      - ./postgres/replica/docker-entrypoint.sh:/docker-entrypoint-replica.sh:ro
+    entrypoint: ["/bin/sh", "/docker-entrypoint-replica.sh"]
+    ports:
+      - "5433:5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc \"SELECT pg_is_in_recovery();\" | grep -q t",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
 
   web:
@@ -311,6 +360,7 @@ services:
 
 volumes:
   postgres_data:
+  postgres_replica_data:
   kafka_data:
   clickhouse_data:
   grafana_data:

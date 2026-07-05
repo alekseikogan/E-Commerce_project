@@ -29,7 +29,7 @@ cp "$NGINX_DIR/$COLOR.conf" "$NGINX_DIR/active.conf"
 docker compose stop web 2>/dev/null || true
 
 "${COMPOSE[@]}" "${PROFILE_ARGS[@]}" up -d --build \
-  db rabbitmq \
+  db db-replica rabbitmq \
   kafka kafka-init kafka-ui \
   kafka-rating-consumer kafka-load-consumer kafka-analytics-consumer \
   kafka-load-publisher \

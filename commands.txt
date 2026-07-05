@@ -12,6 +12,24 @@ cd infra && bash deploy/start-prod.sh
 bash deploy/deploy-blue-green.sh
 
 
+PostgreSQL replica (первый запуск или после обновления compose):
+cd infra
+docker compose up -d db
+# если том postgres_data уже существовал до репликации:
+docker compose exec db sh /scripts/ensure-replication.sh
+docker compose restart db
+docker compose up -d db-replica
+
+Проверка репликации:
+docker compose exec db psql -U cozy_coza -d cozy_coza -c "SELECT pg_is_in_recovery();"
+# primary: f
+
+docker compose exec db-replica psql -U cozy_coza -d cozy_coza -c "SELECT pg_is_in_recovery();"
+# replica: t
+
+# с хоста: master :5432, replica :5433
+
+
 python3 -m venv venv
 source venv/bin/activate.fish
 
