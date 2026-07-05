@@ -31,7 +31,9 @@ def stripe_webhook(request):
         session = event.data.object
         if session.mode == 'payment' and session.payment_status == 'paid':
             try:
-                order = Order.objects.get(id=session.client_reference_id)
+                order = Order.objects.using('default').get(
+                    id=session.client_reference_id,
+                )
             except Order.DoesNotExist:
                 return HttpResponse(status=404)
             # пометить заказ как оплаченный

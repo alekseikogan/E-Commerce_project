@@ -1,12 +1,28 @@
 from decimal import Decimal
+
 import stripe
 from django.conf import settings
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from orders.models import Order
+from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+
+from orders.models import Order, OrderItem
 
 # создать экземпляр Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = settings.STRIPE_API_VERSION
+
+
+def _order_from_master(order_id):
+    """Заказ и позиции с master — сразу после создания на replica их может не быть."""
+    return get_object_or_404(
+        Order.objects.using('default').prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.using('default').select_related('product'),
+            )
+        ),
+        id=order_id,
+    )
 
 
 def payment_completed(request):
@@ -19,7 +35,7 @@ def payment_canceled(request):
 
 def payment_process(request):
     order_id = request.session.get('order_id')
-    order = get_object_or_404(Order, id=order_id)
+    order = _order_from_master(order_id)
 
     if request.method == 'POST':
         success_url = request.build_absolute_uri(

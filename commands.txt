@@ -35,7 +35,9 @@ docker compose exec web_blue python manage.py shell -c "from django.db import ro
 # read: replica, write: default
 
 docker compose exec web_blue python manage.py shell -c "from django.db import connections; c=connections['replica'].cursor(); c.execute('SELECT pg_is_in_recovery()'); print(c.fetchone())"
-# (True,) — Django читает с standby
+# master: заказ и позиции только что записаны, replica может отставать
+docker compose exec web_blue python manage.py shell -c "from orders.models import Order; print(Order.objects.using('default').filter(pk=1).db)"
+# default
 
 
 python3 -m venv venv
