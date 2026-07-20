@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'easy_thumbnails',
+    'graphene_django',
 
     'shop.apps.ShopConfig',  # 389
     'cart.apps.CartConfig',  # 406
@@ -50,6 +51,10 @@ INSTALLED_APPS = [
     'payment.apps.PaymentConfig',  # 450
     'accounts.apps.AccountsConfig',
 ]
+
+GRAPHENE = {
+    'SCHEMA': 'myshop.schema.schema',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
