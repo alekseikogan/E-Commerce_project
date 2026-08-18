@@ -1,6 +1,22 @@
 ﻿Для докера:
 docker compose up --build -d
 
+L7 балансировка (3× web + nginx :8088), из каталога infra:
+# не вместе с ZDD (оба занимают 8088)
+docker compose stop web
+docker compose -f docker-compose.yml -f docker-compose.zdd.yml stop nginx web_blue web_green
+
+docker compose -f docker-compose.yml -f docker-compose.lb.yml up -d db db-replica rabbitmq kafka
+docker compose -f docker-compose.yml -f docker-compose.lb.yml run --rm --no-deps web python manage.py migrate --noinput
+docker compose -f docker-compose.yml -f docker-compose.lb.yml up -d --build --scale web=3
+
+# проверка: три контейнера и разные upstream
+docker compose -f docker-compose.yml -f docker-compose.lb.yml ps web
+curl -sS http://localhost:8088/health/
+curl -sSI http://localhost:8088/health/
+for i in 1 2 3 4 5 6; do curl -sS http://localhost:8088/health/; done
+docker compose -f docker-compose.yml -f docker-compose.lb.yml logs -f --tail=20 web nginx-lb
+
 Загрузка демо-данных (один раз)
 docker compose exec web python manage.py loaddata initial_data
 

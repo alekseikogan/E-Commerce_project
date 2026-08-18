@@ -1,3 +1,5 @@
+import socket
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -10,7 +12,11 @@ from graphene_django.views import GraphQLView
 from shop.analytics_views import analytics_dashboard, track_clicks
 
 urlpatterns = [
-    path('health/', lambda request: HttpResponse('ok'), name='health'),
+    path(
+        'health/',
+        lambda request: HttpResponse(f'ok {socket.gethostname()}\n'),
+        name='health',
+    ),
     # GraphQL API (вне i18n — URL без /en/ /ru/)
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),
 ]
