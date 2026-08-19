@@ -28,6 +28,16 @@
 
         <nav class="header-nav">
           <a href="{% url 'shop:product_list' %}" class="nav-link">Catalog</a>
+          <form method="get" action="{% url 'shop:product_list' %}" class="catalog-search" role="search">
+            <input
+              type="search"
+              name="q"
+              value="{{ query|default:request.GET.q }}"
+              placeholder="Search products"
+              aria-label="Search products"
+            >
+            <button type="submit" class="button small">Search</button>
+          </form>
         </nav>
 
         <div class="header-actions">
@@ -46,6 +56,7 @@
                 <a href="{{ kafka_load_url }}" target="_blank" rel="noopener">Kafka load</a>
                 <a href="{% url 'analytics_dashboard' %}">Analytics</a>
                 <a href="{{ grafana_url }}" target="_blank" rel="noopener">Grafana</a>
+                <a href="{{ elasticsearch_url }}" target="_blank" rel="noopener">Elasticsearch</a>
                 <a href="{% url 'admin:shop_product_changelist' %}">Products</a>
                 <a href="{% url 'admin:orders_order_changelist' %}">Orders</a>
               </div>

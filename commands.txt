@@ -73,3 +73,15 @@ docker compose -f docker-compose.yml -f docker-compose.zdd.yml up -d db rabbitmq
 docker compose -f docker-compose.yml -f docker-compose.zdd.yml up -d --build web_blue nginx
 docker compose -f docker-compose.yml -f docker-compose.zdd.yml run --rm web_blue python manage.py migrate --noinput
 echo blue > .zdd-active-color
+
+Elasticsearch (поиск по каталогу):
+cd infra
+docker compose up -d elasticsearch
+docker compose exec web python manage.py index_products
+# пересоздать индекс и залить товары заново:
+docker compose exec web python manage.py index_products --recreate
+
+# проверка:
+curl -sS http://localhost:9200
+curl -sS "http://localhost:9200/products/_search?q=name:ukulele&pretty"
+# на сайте: /en/?q=ukulele

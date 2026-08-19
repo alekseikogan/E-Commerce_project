@@ -1,6 +1,8 @@
 import graphene
+from django.db.models import Q
 from graphene_django import DjangoObjectType
 
+from .elasticsearch_client import search_product_ids
 from .models import Category, Product
 
 
@@ -31,6 +33,7 @@ class Query(graphene.ObjectType):
         ProductType,
         available_only=graphene.Boolean(default_value=True),
         category_slug=graphene.String(required=False),
+        search=graphene.String(required=False),
     )
     product = graphene.Field(ProductType, id=graphene.ID(required=True))
     categories = graphene.List(CategoryType)
@@ -39,12 +42,28 @@ class Query(graphene.ObjectType):
         slug=graphene.String(required=True),
     )
 
-    def resolve_products(self, info, available_only=True, category_slug=None):
+    def resolve_products(
+        self,
+        info,
+        available_only=True,
+        category_slug=None,
+        search=None,
+    ):
         qs = Product.objects.select_related('category')
         if available_only:
             qs = qs.filter(available=True)
         if category_slug:
             qs = qs.filter(category__slug=category_slug)
+        if search:
+            ids = search_product_ids(search, category_slug=category_slug)
+            if ids is None:
+                qs = qs.filter(
+                    Q(name__icontains=search) | Q(description__icontains=search)
+                )
+            elif ids:
+                qs = qs.filter(pk__in=ids)
+            else:
+                qs = qs.none()
         return qs
 
     def resolve_product(self, info, id):

@@ -245,6 +245,17 @@ CLICKHOUSE_USER = os.environ.get('CLICKHOUSE_USER', 'default')
 CLICKHOUSE_PASSWORD = os.environ.get('CLICKHOUSE_PASSWORD', 'cozy_coza')
 GRAFANA_URL = os.environ.get('GRAFANA_URL', 'http://localhost:3000')
 
+ELASTICSEARCH_HOST = os.environ.get('ELASTICSEARCH_HOST', 'localhost')
+ELASTICSEARCH_PORT = int(os.environ.get('ELASTICSEARCH_PORT', '9200'))
+ELASTICSEARCH_PRODUCTS_INDEX = os.environ.get(
+    'ELASTICSEARCH_PRODUCTS_INDEX',
+    'products',
+)
+ELASTICSEARCH_URL = os.environ.get(
+    'ELASTICSEARCH_URL',
+    f'http://localhost:{ELASTICSEARCH_PORT}',
+)
+
 PRODUCT_POPULARITY_WEIGHTS = {
     'views': 1,
     'cart_adds': 3,

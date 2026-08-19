@@ -1,9 +1,10 @@
 from django.conf import settings
-from django.db.models import IntegerField, Value
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.db.models.functions import Coalesce
 from cart.forms import CartAddProductForm
 from django.shortcuts import get_object_or_404, render
 
+from .elasticsearch_client import search_product_ids
 from .kafka_events import publish_event
 from .models import Category, Product
 
@@ -13,6 +14,7 @@ def product_list(request, category_slug=None):
         return render(request, 'shop/maintenance.html')
 
     category = None
+    query = request.GET.get('q', '').strip()
     categories = Category.objects.all()
     products = (
         Product.objects.filter(available=True)
@@ -31,12 +33,37 @@ def product_list(request, category_slug=None):
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
 
+    if query:
+        ids = search_product_ids(
+            query,
+            category_slug=category.slug if category else None,
+        )
+        if ids is None:
+            products = products.filter(
+                Q(name__icontains=query) | Q(description__icontains=query)
+            )
+        elif not ids:
+            products = products.none()
+        else:
+            rank = Case(
+                *[When(pk=pk, then=Value(position)) for position, pk in enumerate(ids)],
+                output_field=IntegerField(),
+            )
+            products = (
+                products.filter(pk__in=ids)
+                .annotate(_es_rank=rank)
+                .order_by('_es_rank')
+            )
+
     return render(
         request,
         'shop/product/list.html',
-        {'category': category,
-         'categories': categories,
-         'products': products}
+        {
+            'category': category,
+            'categories': categories,
+            'products': products,
+            'query': query,
+        },
     )
 
 
