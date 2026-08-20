@@ -1,3 +1,5 @@
+"""HTTP-клиент ClickHouse: чтение аналитики из таблицы shop_events."""
+
 import logging
 
 import clickhouse_connect
@@ -9,6 +11,7 @@ _client = None
 
 
 def get_client():
+    """Вернуть HTTP-клиент ClickHouse. Создаётся один раз на процесс."""
     global _client
     if _client is not None:
         return _client
@@ -24,6 +27,11 @@ def get_client():
 
 
 def query_rows(sql, parameters=None):
+    """Выполнить SELECT и вернуть (строки, имена колонок).
+
+    При ошибке логирует исключение и возвращает ([], []),
+    чтобы дашборд не падал, если ClickHouse недоступен.
+    """
     try:
         result = get_client().query(sql, parameters=parameters or {})
         return result.result_rows, result.column_names
@@ -33,5 +41,9 @@ def query_rows(sql, parameters=None):
 
 
 def query_dicts(sql, parameters=None):
+    """То же, что query_rows, но каждая строка — dict {колонка: значение}.
+
+    Удобно отдавать в шаблон аналитики.
+    """
     rows, columns = query_rows(sql, parameters)
     return [dict(zip(columns, row)) for row in rows]

@@ -1,3 +1,5 @@
+"""HTTP-клиент Elasticsearch: индекс товаров и полнотекстовый поиск."""
+
 import logging
 
 from django.conf import settings
@@ -30,10 +32,12 @@ INDEX_MAPPINGS = {
 
 
 def _index_name():
+    """Имя индекса товаров из Django settings (по умолчанию products)."""
     return settings.ELASTICSEARCH_PRODUCTS_INDEX
 
 
 def get_client():
+    """Вернуть HTTP-клиент Elasticsearch. Создаётся один раз на процесс."""
     global _client
     if _client is not None:
         return _client
@@ -46,6 +50,11 @@ def get_client():
 
 
 def ensure_index(recreate=False):
+    """Создать индекс products с mapping, если его ещё нет.
+
+    При recreate=True удаляет существующий индекс и создаёт заново.
+    Возвращает False, если Elasticsearch недоступен.
+    """
     global _index_ready
     if _index_ready and not recreate:
         return True
@@ -72,6 +81,7 @@ def ensure_index(recreate=False):
 
 
 def product_document(product):
+    """Собрать JSON-документ товара для индекса (категория уже внутри, без JOIN)."""
     category = getattr(product, 'category', None)
     return {
         'id': product.id,
@@ -87,6 +97,7 @@ def product_document(product):
 
 
 def index_product(product):
+    """Записать или обновить один товар в индексе. Вызывается из post_save."""
     if not ensure_index():
         return False
     try:
@@ -103,6 +114,7 @@ def index_product(product):
 
 
 def delete_product(product_id):
+    """Удалить документ товара. 404 не ошибка: в индексе его могло не быть."""
     try:
         get_client().delete(
             index=_index_name(),
@@ -117,7 +129,16 @@ def delete_product(product_id):
 
 
 def search_product_ids(query, category_slug=None, size=50):
-    """Return ranked product ids, or None if Elasticsearch is unavailable."""
+    """Найти товары по строке запроса и вернуть id в порядке релевантности.
+
+    Ищет по name (вес 3), description и category_name, допускает опечатки.
+    Опционально фильтрует по category_slug. Карточки потом грузятся из Postgres.
+
+    Returns:
+        list[int]: найденные id.
+        []: запрос выполнен, совпадений нет.
+        None: пустой query или Elasticsearch недоступен (нужен SQL-фолбэк).
+    """
     if not query or not query.strip():
         return None
     if not ensure_index():
@@ -154,6 +175,11 @@ def search_product_ids(query, category_slug=None, size=50):
 
 
 def reindex_products(recreate=False):
+    """Залить в индекс все available-товары из Postgres пачкой.
+
+    Для manage.py index_products. recreate=True сбрасывает mapping перед заливкой.
+    Возвращает число успешно записанных документов.
+    """
     from shop.models import Product
 
     if not ensure_index(recreate=recreate):
